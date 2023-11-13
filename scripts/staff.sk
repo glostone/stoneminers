@@ -1,0 +1,54 @@
+command /mute <offlineplayer> <timespan>:
+    permission: stoneminers.mute
+    trigger:
+        set {muted::%arg-1's uuid%} to now
+        set {muteddur::%arg-1's uuid%} to arg-2
+        send "<red>You have been muted for %arg-2%" to arg-1 
+        send "%nl%&c%arg-1% was muted for %arg-2%.%nl%&fLaugh at them!%nl%" to all players
+
+command /unmute <offlineplayer>:
+    permission: stoneminers.mute
+    trigger:
+        if {muted::%arg-1's uuid%} is set:
+            delete {muted::%arg-1's uuid%}
+            delete {muteddur::%arg-1's uuid%}
+            send "&aYour mute punishment was lifted." to arg-1 
+            send "<green>You unmuted %arg-1%"
+        else:
+            send "<red>That player is not muted"
+
+
+command /tempban <offlineplayer> <timespan> [<text>]:
+    permission: stoneminers.tempban
+    trigger:
+        wipe(arg-1)
+        send "%nl%&c%arg-1% was banned for %arg-2%.%nl%&fLaugh at them!%nl%" to all players
+        ban arg-1 due to "%arg-3 ? "No reason given."%" for arg-2
+        kick the arg-1 due to "You have been banned for ""%arg-3 ? "No reason given."%"" for %arg-2%"
+
+command /tempip-ban <offlineplayer> <timespan> [<text>]:
+    permission: stoneminers.tempipban
+    trigger:
+        wipe(arg-1)
+        send "%nl%&c%arg-1% was ip-banned for ""%arg-3%"" for %arg-2%.%nl%&fLaugh at them!%nl%" to all players
+        ban arg-1 by ip due to "%arg-3 ? "No reason given."%" for arg-2
+        kick the arg-1 due to "You have been ip-banned for ""%arg-3 ? "No reason given."%"" for %arg-2%"
+
+command /unban <offlineplayer>:
+    permission: stoneminers.unban
+    trigger:
+        unban arg-1
+        send "<green>%arg-1% was unbanned."
+
+command /unipban <offlineplayer>:
+    permission: stoneminers.unipban
+    trigger:
+        unban arg-1 by ip
+        send "<green>%arg-1% was un ip-banned."
+
+function itemname(i: itemtype) :: text:
+    set {_namespace} to namespaced key of {_i}
+    set {_name} to "%{_namespace}%"
+    replace all "minecraft:" with "" in {_name}
+    replace all "_" with " " in {_name}
+    return formatstring("%{_name}%")

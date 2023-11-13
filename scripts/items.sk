@@ -1,0 +1,99 @@
+command /saveitem <text>:
+    permission: stoneminers.saveitem 
+    trigger:
+        if player's tool is not air:
+            set {_i} to player's tool
+            set string tag "item;id" of nbt of {_i} to arg-1
+            set player's tool to {_i}
+            set {item::%arg-1%} to 1 of player's tool 
+            send "&aYour held item was saved to the id ""&b%arg-1%&a"""
+
+command /deleteitem <text>:
+    permission: stoneminers.deleteitem 
+    trigger:
+        if {item::%arg-1%} is set:
+            delete {item::%arg-1%} 
+            send "&aItem ""&b%arg-1%&a"" was deleted."
+
+
+command /getitem <text> [<integer>]:
+    permission: stoneminers.getitem 
+    trigger:
+        if {item::%arg-1%} is set:
+            give player arg-2 ? 1 of {item::%arg-1%}
+            send "&aYou recived %arg-2 ? 1% of %arg-1%"
+
+
+command /items [<integer>]:
+    aliases: /itemlist
+    permission: stoneminers.itemlist 
+    trigger:
+        set {_iteration} to 0
+
+        loop {item::*}:
+            set {_id} to string tag "item;id" of nbt of loop-value
+            
+            set {_index::%{_iteration}%} to {_id}
+
+            add 1 to {_iteration}
+            
+
+        if arg-1 is set:
+            set {_page} to arg-1 
+        else:
+            set {_page} to 1 
+
+        set {_pages} to ceil((size of {item::*}) / 53)
+        set {_page} to {_pages} if {_page} is greater than {_pages}
+        
+
+        set metadata tag "gui.itemlist" of player to chest inventory with 6 rows named "&6Item list page %{_page}%"
+        set {_v} to 53 * ({_page} - 1)
+        set {_slot} to 0
+
+        loop 53 times:
+            set {_item} to {item::%{_index::%{_v}%}%} 
+
+            set {_itemlore::*} to lore of {_item}
+            set {_lore::*} to "&8ID: %{_index::%{_v}%}%" and ""
+
+            loop size of {_itemlore::*} times:
+                add {_itemlore::%loop-value-2%} to {_lore::*}
+
+            add "" and "&bLeft click to get 1 | Shift left click for a stack" to {_lore::*}
+            set lore of {_item} to {_lore::*}
+
+            set slot {_slot} of metadata tag "gui.itemlist" of player to {_item}
+
+            add 1 to {_slot}
+            add 1 to {_v}
+
+
+        set slot 53 of metadata tag "gui.itemlist" of player to arrow named "&bPages" with lore "&fLeft-Click for next, Right-Click for previous"
+        open metadata tag "gui.itemlist" of player to player
+
+            
+on inventory click:
+    if event-inventory is metadata tag "gui.itemlist" of player:
+        cancel event
+
+        if event-slot is arrow named "&bPages" with lore "&fLeft-Click for next, Right-Click for previous":
+            set {_page::*} to name of event-inventory split at " "
+            set {_page} to {_page::4} parsed as an integer 
+
+            if click type is right mouse button:
+                if {_page} -1 is not less than 1:
+                    remove 1 from {_page}
+                    execute player command "/items %{_page}%"
+
+            else if click type is left mouse button:
+                add 1 to {_page}
+                execute player command "/items %{_page}%"
+
+        else if click type is left mouse button with shift:
+            set {_id} to string tag "item;id" of nbt of event-slot
+            set cursor slot of player to (max stack size of type of {item::%{_id}%}) of {item::%{_id}%}
+
+        else if click type is left mouse button:
+            set {_id} to string tag "item;id" of nbt of event-slot
+            set cursor slot of player to 1 of {item::%{_id}%}

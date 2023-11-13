@@ -1,0 +1,52 @@
+on death of a player:
+    if victim's world is "world_nether":
+        if "%region at victim%" contains "nether_arena":
+            set {_victim} to victim
+            if block at victim is air:
+                set {_loc} to location of block at victim 
+            else:
+                loop blocks in radius 2 of block at victim:
+                    if loop-block is air:
+                        set {_loc} to location of loop-block 
+                        stop loop 
+
+            while block below block at {_loc} is not solid:
+                if {_v} is greater than 15:
+                    stop loop
+
+                set {_loc} to location of block below block at {_loc}
+                add 1 to {_v}
+        
+            set y coord of {_loc} to floor(y coord of {_loc}) -1.4
+
+            #execute console command "execute in the_nether run setblock %{_x}% %{_y}% %{_z}% player_head[rotation=%(random integer between 0 and 15)%]{SkullOwner:{Name:""%victim%""}}"
+            #execute console command "execute in the_nether run summon armor_stand %{_x}% %{_y} - 1% %{_z}% {Invisible:1b,DisabledSlots:4144959,CustomName:'[{""text"":""%victim%\'s Head"",""color"":""red""}]',CustomNameVisible:1b,Invulnerable:1b,NoGravity:1b,OnGround:1b}"
+            set {_head} to victim's skull
+            set yaw of {_loc} to random integer between -180 and 180
+            spawn 1 of armor stand at {_loc}:
+                set gravity of event-entity to off
+                make event-entity invulnerable
+                make event-entity invisible
+                set helmet of event-entity to {_head}
+                set metadata tag "player" of event-entity to "%{_victim}%"
+                set displayname of event-entity to "&c%{_victim}%'s Head"
+            
+                
+    else:
+        if attacker is a player:
+            chance of 10%:
+                drop head of victim at victim
+                
+
+on right click on armor stand:
+    if player's world is "world_nether":
+        cancel event 
+        set {_i} to helmet of clicked entity 
+        delete clicked entity
+        give player {_i}
+        set {_player} to metadata tag "player" of clicked entity
+        set {_player} to {_player} parsed as a player
+        send "&bYou collected %{_player}%'s head" to player 
+        give player 1 of skull of {_player}
+        set player's health to (player's health + 2)
+        set player's hunger to (player's hunger + 4)

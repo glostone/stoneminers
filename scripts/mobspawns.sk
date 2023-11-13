@@ -1,0 +1,19 @@
+at 12am in "world":
+    chance of 25%:
+        spawntrader()
+
+
+
+function spawntrader():
+    set {_player} to random element of all players in world "world"
+    loop all blocks in radius 15 of {_player}:
+        if "%region at loop-block%" does not contain "spawn":
+            if loop-block is air:
+                if block above loop-block is air:
+                    if block below loop-block is solid:
+                        spawn 1 of wandering trader at loop-block:
+                            set int tag "DespawnDelay" of nbt of event-entity to 24000 
+                        stop
+
+on pre spawn of a bat:
+	cancel event

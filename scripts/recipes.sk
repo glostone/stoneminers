@@ -1,0 +1,51 @@
+on load:
+    remove mc recipe "tnt"
+    remove mc recipe "end_crystal"
+    remove mc recipe "tnt_minecart"
+    remove mc recipe "respawn_anchor"
+
+    set {item::role_swapper} to eye of ender named "&6Role Swapper &7(Right Click)" with lore "", "&bRight click with this item to change your role." and "&cYou will not recive the roles starter kit." with all flags hidden
+    set string tag "item;id" of nbt of {item::role_swapper} to "role_swapper"
+    enchant {item::role_swapper} with mending
+
+    set {item::ec_upgrade} to ender chest named "&5Enderchest Upgrade &7(Right Click)" with lore "" and "&bGives you permission to use /ec." with all flags hidden
+    set string tag "item;id" of nbt of {item::ec_upgrade} to "ec_upgrade"
+    enchant {item::ec_upgrade} with mending
+
+    set {item::upgrade_point} to magenta dye named "&dUpgrade Point" with lore "", "&fUsed to purchase upgrades. &7(/upgrades)" and "" with all flags hidden 
+    set string tag "item;id" of nbt of {item::upgrade_point} to "upgrade_point"
+    enchant {item::upgrade_point} with mending
+    
+    set {item::summoning_altar} to respawn anchor named "&5Summoning Altar" with lore "", "&fPlace to start summoning mobs." and "" with all flags hidden 
+    set string tag "item;id" of nbt of {item::summoning_altar} to "summoning_altar"
+    enchant {item::summoning_altar} with mending
+    
+    register new shaped recipe for oak planks using stick, stick, stick and stick with id "oak_planks"
+    register new shaped recipe for water bucket using oak leaves, oak leaves, oak leaves, oak leaves, bucket, oak leaves, oak leaves, oak leaves and oak leaves with id "water_bucket"
+    register new shapeless recipe for lava bucket using magma cream and bucket with id "lava_bucket"
+    register new shaped recipe for {item::role_swapper} using emerald block, diamond, emerald block, diamond, ender pearl, diamond, emerald block, diamond and emerald block with id "role_swapper"
+    register new shaped recipe for music disc pigstep using netherrack, netherrack, netherrack, netherrack, gold block, netherrack, netherrack, netherrack and netherrack with id "pigstep"
+    register new shaped recipe for music disc otherside using amethyst block, amethyst block, amethyst block, amethyst block, diamond, amethyst block, amethyst block, amethyst block and amethyst block with id "otherside"
+    register new shaped recipe for {item::ec_upgrade} using copper block, diamond, copper block, diamond, ender chest, diamond, copper block, diamond and copper block with id "ec_upgrade"
+    register new shaped recipe for name tag using string, iron ingot, air, iron ingot, paper, air, air, air and paper with id "name_tag"
+
+    register new shaped recipe for {item::summoning_altar} using amethyst shard, book, amethyst shard, obsidian, diamond block, obsidian, obsidian, diamond block and obsidian with id "summoning_altar"
+
+    register new shaped recipe for villager spawn egg using emerald block, hay bale, emerald block, rotten flesh, diamond block, bone, emerald block, white bed and emerald block with id "villager"
+
+    register new shapeless recipe for {item::basics_summoning_tome} using book, amethyst shard, and redstone with id "basics_summoning_tome"
+on right click with ender chest:
+    if name of player's tool is "&5Enderchest Upgrade &7(Right Click)":
+        cancel event 
+        if player does not have permission "stoneminers.enderchest":
+            remove 1 of player's tool from player's tool 
+            execute console command "lp user %player% permission set stoneminers.enderchest true"
+            send "&bYou have unlocked /ec!" to player 
+        else:
+            send "&cYou have already unlocked that!" to player
+
+command /ec:
+    permission: stoneminers.enderchest
+    trigger:
+        open player's enderchest to player 
+        play sound "block.ender_chest.open" at player for player

@@ -1,0 +1,82 @@
+on join:
+    set {icon::%player's uuid%} to "●" if {icon::%player's uuid%} is not set
+
+    set {namecolour::%player's uuid%} to "7" if {namecolour::%player's uuid%} is not set
+        
+    
+    if {joins::*} contains player's uuid:
+        if player's gamemode is spectator:
+            hide player from all players
+        if {namecolour::%player's uuid%} contains "##":
+            set join message to coloured formatted "&8[&a+&8] <%{namecolour::%player's uuid%}%>%{icon::%player's uuid%}% %player%"
+        else:
+            set join message to coloured formatted "&8[&a+&8] &%{namecolour::%player's uuid%}%%{icon::%player's uuid%}% %player%"
+
+    else:
+        add player's uuid to {joins::*}
+        wipe(player)
+        set join message to "&b%player% joined for the first time! Welcome them. &3##%size of {joins::*}%"
+
+    unlock custom recipe "oak_planks" for player
+    unlock custom recipe "water_bucket" for player
+    unlock custom recipe "lava_bucket" for player
+    unlock custom recipe "role_swapper" for player
+    unlock custom recipe "pigstep" for player
+    unlock custom recipe "otherside" for player
+    unlock custom recipe "name_tag" for player
+    unlock custom recipe "villager" for player
+    unlock custom recipe "summoning_altar" for player
+    unlock custom recipe "basics_summoning_tome" for player
+    
+    
+    loop all players:
+        if player's gamemode is spectator:
+            hide player from loop-player
+            reveal loop-player to player 
+
+        else:
+            reveal player to loop-player
+
+        if loop-player's gamemode is spectator:
+            hide loop-player from player
+            reveal player to loop-player 
+        else:
+            reveal loop-player to player
+            
+
+
+
+command /clearjoins:
+    permission: op 
+    trigger:
+        delete {joins::*}
+
+on quit:
+    set quit message to coloured "&8[&c-&8] &%{namecolour::%player's uuid%}%%{icon::%player's uuid%}% %player%" 
+
+on gamemode change: 
+    if player's gamemode is spectator:
+        hide player from all players
+    else:
+        reveal player to all players
+
+
+function wipe(p: player):
+    delete {role::%{_p}'s uuid%}
+    delete {roleupgrades::%{_p}'s uuid%::*}
+    clear {_p}'s inventory 
+    clear {_p}'s enderchest 
+    set {_p}'s max health to 10 
+    set {_p}'s health to 10
+    set {_p}'s food level to 10
+    set saturation of {_p} to 20
+    set {_p}'s time played to 0 seconds
+    set {_p}'s level to 0
+    set {_p}'s level progress to 0
+    set {roleselected::%{_p}'s uuid%} to false
+    wait 1 second
+    make {_p} execute command "spawn"
+    execute {_p} command "help basics"
+    while {roleselected::%{_p}'s uuid%} is false:
+        roleSelector({_p}, true)
+        wait 1 second

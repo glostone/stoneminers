@@ -1,0 +1,94 @@
+on respawn:
+    if player's bed does not exist:
+        teleport player to location (0.00, 62, 0.00) in world "world"
+
+
+command /spawn:
+    trigger:
+        teleport player to location (0.00, 62, 0.00) in world "world"
+      
+on block flow:
+	if "%region at future event-block%" contains "spawn":
+		cancel event
+        
+command /home:
+    trigger:
+        if player's bed exists:
+            send "&aYou were teleported to your bed."
+            teleport player to player's bed
+        else:
+            send "&cYou don't have a bed set, So you were teleported to spawn."
+            teleport player to location (0.00, 62, 0.00) in world "world"
+
+
+command /tpa <offlineplayer>:
+    aliases: teleportask, tpask
+    trigger:
+        if arg-1 is online:
+            if metadata tag "tpa.requesed" of arg-1 is not player:
+                set metadata tag "tpa.requesed" of arg-1 to "%player%" 
+                send "&e%player% want's to teleport to you! Use /tpaccept to accept and /tpdeny to deny" to arg-1 
+                send "&eYou asked to teleport to %arg-1%" to player 
+            else:
+                send "&cYou have already asked to teleport to that player "
+        else:
+            send "&cThat player is offline." to player 
+
+
+command /tpaccept:
+    trigger:
+        if metadata tag "tpa.requesed" of player is set:
+            set {_p} to metadata tag "tpa.requesed" of player parsed as a player 
+            if {_p} is online:
+                send "&a%player% accepted your teleport request!" to {_p}
+                send "&aYou accepted %{_p}%'s teleport request!" to player
+                teleport {_p} to player 
+                delete metadata tag "tpa.requesed" of player
+            else:
+                send "&cThe player logged out after sending the request." to player
+                delete metadata tag "tpa.requesed" of player
+        else:
+            send "&cNo one has requested to teleport to you!" to player
+
+command /tpdeny:
+    trigger:
+        if metadata tag "tpa.requesed" of player is set:
+            set {_p} to metadata tag "tpa.requesed" of player parsed as a player 
+            send "&acYou denied %{_p}%'s teleport request." to player
+            delete metadata tag "tpa.requesed" of player
+        else:
+            send "&cNo one has requested to teleport to you!" to player  
+
+
+
+function spawnreset():
+    send "&cSpawn chunks are being reset! Expect some lag." to all players
+    set {_count} to 0
+    set {_start} to now
+    set {_l::1} to location (47, -63, 47) in world "world"
+    set {_l::2} to location (-47, 314, -47) in world "world" 
+    loop all blocks within {_l::1} and {_l::2}:
+
+        if "%region at loop-block%" does not contain "spawn":
+            loop players in radius 2 of loop-block:
+                teleport loop-player to location (0.00, 62, 0.00) in world "world"
+
+            if y coord of loop-block is less than 1:
+                if loop-block is not deepslate:
+                    set loop-block to deepslate 
+                    add 1 to {_count}
+            else:
+                if loop-block is not stone:
+                    set loop-block to stone 
+                    add 1 to {_count}
+    
+    send "&aSpawn chunk reset is over. %{_count}% blocks were reset. The reset took %time since {_start}%" to all players
+    set {lastmapreset} to now
+            
+
+
+on load:
+    set {lastmapreset} to now
+    
+every 5 hours:
+    spawnreset()

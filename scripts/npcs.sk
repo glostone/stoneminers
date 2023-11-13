@@ -1,0 +1,34 @@
+on right click on villager:
+    if "%region at clicked entity%" contains "buy":
+        cancel event
+        execute player command "buy"
+
+    if "%region at clicked entity%" contains "cosmetics":
+        cancel event
+        execute player command "cosmetics"
+
+    if "%region at clicked entity%" contains "tphome":
+        cancel event
+        execute player command "home"
+
+    if "%region at clicked entity%" contains "discord":
+        cancel event
+        execute player command "discord"
+
+on damage of villager:
+    if "%region at victim%" contains "buy":
+        cancel event
+        execute attacker command "buy"
+
+    if "%region at victim%" contains "cosmetics":
+        cancel event
+        execute attacker command "cosmetics"
+
+    if "%region at victim%" contains "tphome":
+        cancel event
+        execute attacker command "home"
+
+    if "%region at victim%" contains "discord":
+        cancel event
+        execute attacker command "discord"
+

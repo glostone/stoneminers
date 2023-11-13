@@ -1,0 +1,444 @@
+on load:
+    load yaml "plugins/Skript/yaml/drops.yml" as "drops"
+    set {item::placeholder} to barrier named "&cThis is a placeholder item." with lore "&fSomething may be here in the future."
+    set string tag "item;id" of nbt of {item::placeholder} to "placeholder"
+
+command /editdrops <itemtype>:
+    usage: &c/editdrops <block>
+    permission: stoneminers.editdrops 
+    trigger:
+        editdrops(player, arg-1)
+
+function editdrops(p: player, block: itemtype):
+    set {_name} to formatstring("%{_block}%")
+    set metadata tag "gui.editdrops" of {_p} to chest inventory with 6 rows named "%{_name}%"
+    set metadata tag "gui.editdrops.block" of {_p} to {_block}
+    loop 54 times:
+        set slot loop-value -1 of metadata tag "gui.editdrops" of {_p} to grey stained glass pane named "&f"
+    set {_v} to 0
+    loop yaml nodes with keys "%{_block}%" of "drops":
+        if yaml value "%{_block}%.%loop-value%.type" of "drops" is "item":
+            set {_item} to yaml value "%{_block}%.%loop-value%.item" of "drops" parsed as an itemtype
+            set {_name} to yaml value "%{_block}%.%loop-value%.item" of "drops"
+
+            set {_countmin} to yaml value "%{_block}%.%loop-value%.countmin" of "drops"
+            set {_countmax} to yaml value "%{_block}%.%loop-value%.countmax" of "drops"
+            set {_chance} to yaml value "%{_block}%.%loop-value%.chance" of "drops"
+            set {_fortune} to yaml value "%{_block}%.%loop-value%.fortune" of "drops"
+
+            
+            if {_item} is air:
+                set {_item} to stone 
+                set yaml value "%{_block}%.%loop-value%.item" of "drops" to "stone"
+
+            set slot {_v} of metadata tag "gui.editdrops" of {_p} to {_item} named "&fItem" with lore "&fItem: %{_item}%", "", "&fCount: &b%{_countmin}%-%{_countmax}%", "&fChance: &a%{_chance}%%%", "&fFortune: &c%{_fortune}%", "", "&bLeft-Click to set count.", "&bMiddle-Click to set item.", "&bRight-Click to set chance.", "&bF to change type to ID", "&bNumber Keys to toggle fortune" and "&c&lCtrl + Q to delete."
+            add 1 to {_v}
+
+        else if yaml value "%{_block}%.%loop-value%.type" of "drops" is "id":
+            set {_id} to yaml value "%{_block}%.%loop-value%.id" of "drops" 
+            set {_item} to {item::%{_id}%}
+
+            set {_countmin} to yaml value "%{_block}%.%loop-value%.countmin" of "drops"
+            set {_countmax} to yaml value "%{_block}%.%loop-value%.countmax" of "drops"
+            set {_chance} to yaml value "%{_block}%.%loop-value%.chance" of "drops"
+            set {_fortune} to yaml value "%{_block}%.%loop-value%.fortune" of "drops"
+
+            set slot {_v} of metadata tag "gui.editdrops" of {_p} to {_item} named "&bID" with lore "&fItem Id: &e%{_id}%", "&fCount: &b%{_countmin}%-%{_countmax}%", "&fChance: &a%{_chance}%%%", "&fFortune: &c%{_fortune}%", "", "&bLeft-Click to set count.", "&bMiddle-Click to set item.", "&bRight-Click to set chance.", "&bF to change type to Entity", "&bNumber keys to toggle fortune" and "&c&lCtrl + Q to delete."  with all flags hidden
+
+            add 1 to {_v}
+
+        else if yaml value "%{_block}%.%loop-value%.type" of "drops" is "mob":
+            set {_mob_id} to yaml value "%{_block}%.%loop-value%.mob_id" of "drops" 
+            set {_chance} to yaml value "%{_block}%.%loop-value%.chance" of "drops"
+            set {_fortune} to yaml value "%{_block}%.%loop-value%.fortune" of "drops"
+            set {_item} to mob({_mob_id}, "spawn_egg")
+            set name of {_item} to "&cMob"
+
+            set {_chance} to yaml value "%{_block}%.%loop-value%.chance" of "drops"
+
+            set slot {_v} of metadata tag "gui.editdrops" of {_p} to {_item} with lore "&fMob Id: &e%{_mob_id}%", "&fChance: &a%{_chance}%%%", "&fFortune: &c%{_fortune}%",  "", "&bMiddle-Click to set mob id.", "&bRight-Click to set chance.", "&bF to change type to XP", "&bNumber keys to toggle fortune" and "&c&lCtrl + Q to delete." with all flags hidden
+
+            add 1 to {_v}
+
+        else if yaml value "%{_block}%.%loop-value%.type" of "drops" is "xp":
+
+            set {_countmin} to yaml value "%{_block}%.%loop-value%.countmin" of "drops"
+            set {_countmax} to yaml value "%{_block}%.%loop-value%.countmax" of "drops"
+            set {_chance} to yaml value "%{_block}%.%loop-value%.chance" of "drops"
+            set {_fortune} to yaml value "%{_block}%.%loop-value%.fortune" of "drops"
+
+            set slot {_v} of metadata tag "gui.editdrops" of {_p} to experience bottle named "&eXp" with lore "&fCount: &b%{_countmin}%-%{_countmax}%", "&fChance: &a%{_chance}%%%", "&fFortune: &c%{_fortune}%", "", "&bLeft-Click to set count.", "&bMiddle-Click to set item.", "&bRight-Click to set chance.", "&bF to change type to Item", "&bNumber keys to toggle fortune" and "&c&lCtrl + Q to delete." with all flags hidden
+            add 1 to {_v}
+
+
+
+
+    set slot {_v} of metadata tag "gui.editdrops" of {_p} to lime dye named "&aAdd New Drop"
+    wait 1 tick
+    open metadata tag "gui.editdrops" of {_p} to {_p}
+
+
+
+        
+on inventory click:
+    if player's current inventory is metadata tag "gui.editdrops" of player:
+        cancel event 
+        if event-inventory is metadata tag "gui.editdrops" of player:
+            set {_block} to metadata tag "gui.editdrops.block" of player
+            if name of event-slot is "&aAdd New Drop":
+                set yaml value "%{_block}%.%index of event-slot%.type" of "drops" to "item"
+                set yaml value "%{_block}%.%index of event-slot%.item" of "drops" to "stone"
+                set yaml value "%{_block}%.%index of event-slot%.countmin" of "drops" to 1
+                set yaml value "%{_block}%.%index of event-slot%.countmax" of "drops" to 1
+                set yaml value "%{_block}%.%index of event-slot%.chance" of "drops" to 0
+                set yaml value "%{_block}%.%index of event-slot%.fortune" of "drops" to true
+                save yaml "drops"
+                editdrops(player, {_block})
+
+            else:
+                if event-slot is not grey stained glass pane named "&f":
+                    set {_type} to yaml value "%{_block}%.%index of event-slot%.type" of "drops"
+
+                    if click action is left mouse button:
+                        close player's inventory 
+                        if {_type} is not "mob":
+                            set metadata tag "gui.editdrops.chat" of player to "setcount"
+                            set metadata tag "gui.editdrops.drop" of player to index of event-slot
+                            send "&fType the count in chat formatted as ""&bCountMin-CountMax&f"", or type ""Q"" to cancel."
+
+                    else if click action is middle mouse button:
+                        if {_type} is "id":
+                            set metadata tag "gui.editdrops.chat" of player to "setid"
+                            close player's inventory 
+                            set metadata tag "gui.editdrops.drop" of player to index of event-slot
+                            send "&fType the item id in chat, or type ""Q"" to cancel."
+
+                        else if {_type} is "mob":
+                            set metadata tag "gui.editdrops.chat" of player to "setmobid"
+                            close player's inventory 
+                            set metadata tag "gui.editdrops.drop" of player to index of event-slot
+                            send "&fType the mob id in chat, or type ""Q"" to cancel."
+
+                        else if {_type} is "item":
+                            set metadata tag "gui.editdrops.chat" of player to "setitem"
+                            close player's inventory 
+                            set metadata tag "gui.editdrops.drop" of player to index of event-slot
+                            send "&fType the item in chat, or type ""Q"" to cancel."
+
+                    else if click action is right mouse button:
+                        close player's inventory 
+                        set metadata tag "gui.editdrops.drop" of player to index of event-slot
+                        set metadata tag "gui.editdrops.chat" of player to "setchance"
+                        send "&fType the chance in chat, or type ""Q"" to cancel."
+
+                    
+                    else if click action is swap offhand:
+                        if yaml value "%{_block}%.%index of event-slot%.type" of "drops" is "item":
+                            set yaml value "%{_block}%.%index of event-slot%.type" of "drops" to "id"
+                            set yaml value "%{_block}%.%index of event-slot%.id" of "drops" to "placeholder"
+                            delete yaml value "%{_block}%.%index of event-slot%.item" of "drops"
+
+                        else if yaml value "%{_block}%.%index of event-slot%.type" of "drops" is "id":
+                            set yaml value "%{_block}%.%index of event-slot%.type" of "drops" to "mob"
+                            set yaml value "%{_block}%.%index of event-slot%.mob_id" of "drops" to "placeholder"
+                            delete yaml value "%{_block}%.%index of event-slot%.id" of "drops"
+
+                        else if yaml value "%{_block}%.%index of event-slot%.type" of "drops" is "mob":
+                            set yaml value "%{_block}%.%index of event-slot%.type" of "drops" to "xp"
+                            delete yaml value "%{_block}%.%index of event-slot%.mob_id" of "drops"
+
+                        else if yaml value "%{_block}%.%index of event-slot%.type" of "drops" is "xp":
+                            set yaml value "%{_block}%.%index of event-slot%.item" of "drops" to "stone"
+                            set yaml value "%{_block}%.%index of event-slot%.type" of "drops" to "item"
+
+                        save yaml "drops"
+                        editdrops(player, {_block})
+
+                    else if click action is number key:
+                        if yaml value "%{_block}%.%index of event-slot%.fortune" of "drops" is true:
+                            set yaml value "%{_block}%.%index of event-slot%.fortune" of "drops" to false
+
+                        else if yaml value "%{_block}%.%index of event-slot%.fortune" of "drops" is false:
+                            set yaml value "%{_block}%.%index of event-slot%.fortune" of "drops" to true
+
+
+                        save yaml "drops"
+                        editdrops(player, {_block})
+                
+
+
+on chat:
+    if metadata tag "gui.editdrops.chat" of player is set: 
+        cancel event 
+        set {_block} to metadata tag "gui.editdrops.block" of player
+        set {_drop} to metadata tag "gui.editdrops.drop" of player
+
+        if message is "Q":
+            delete metadata tag "gui.editdrops.chat" of player
+            send "&cProcess cancelled." to player 
+            editdrops(player, {_block})
+
+        else:
+            if metadata tag "gui.editdrops.chat" of player is "setcount":
+                set {_message::*} to message split at "-"
+                if {_message::1} parsed as an integer is not set:
+                    if {_message::2} parsed as an integer is not set:
+                        send "&cPlease format the message correctly!" to player 
+                        stop
+
+                set yaml value "%{_block}%.%{_drop}%.countmin" of "drops" to {_message::1}
+                set yaml value "%{_block}%.%{_drop}%.countmax" of "drops" to {_message::2}
+                save yaml "drops"
+                editdrops(player, {_block})
+                delete metadata tag "gui.editdrops.chat" of player
+        
+
+
+
+            else if metadata tag "gui.editdrops.chat" of player is "setid":
+                if {item::%message%} is set:
+                    set yaml value "%{_block}%.%{_drop}%.id" of "drops" to message 
+                    save yaml "drops"
+                    editdrops(player, {_block})
+                    delete metadata tag "gui.editdrops.chat" of player
+                else:
+                    send "&cInvalid item id."
+
+            else if metadata tag "gui.editdrops.chat" of player is "setmobid":
+                if mob(message, "check") is true:
+                    set yaml value "%{_block}%.%{_drop}%.mob_id" of "drops" to message 
+                    save yaml "drops"
+                    editdrops(player, {_block})
+                    delete metadata tag "gui.editdrops.chat" of player
+                else:
+                    send "&cInvalid item mob id."
+
+            else if metadata tag "gui.editdrops.chat" of player is "setitem":
+                if message parsed as an itemtype is set:
+                    set yaml value "%{_block}%.%{_drop}%.item" of "drops" to message 
+                    save yaml "drops"
+                    editdrops(player, {_block})
+                    delete metadata tag "gui.editdrops.chat" of player
+                else:
+                    send "&cInvalid itemtype."
+
+            else if metadata tag "gui.editdrops.chat" of player is "setchance":
+                if message parsed as a number is set:
+                    set yaml value "%{_block}%.%{_drop}%.chance" of "drops" to message parsed as a number
+                    save yaml "drops"
+                    editdrops(player, {_block})
+                    delete metadata tag "gui.editdrops.chat" of player
+                else:
+                    send "&cThat is not a number."
+
+            else:
+                delete metadata tag "gui.editdrops.chat" of player
+
+
+command /drops:
+    trigger:
+        dropsgui(player, "main")
+
+function dropsgui(p: player, page: string):
+    set metadata tag "prevpage" of {_p} to {_page}
+    if {_page} is "main":
+        set metadata tag "gui.drops" of {_p} to chest inventory with 6 rows named "Drops"
+        set {_validslots::*} to 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42 and 43 
+        loop 54 times:
+            if {_validslots::*} does not contain (loop-value -1):
+                set slot (loop-value -1) of metadata tag "gui.drops" of {_p} to grey stained glass pane named "&f"
+            else:
+                set slot (loop-value -1) of metadata tag "gui.drops" of {_p} to white stained glass pane named "&f"
+
+        
+        set {_v} to 0
+        loop yaml nodes with keys "" of "drops":
+            while {_validslots::*} does not contain {_v}:
+                add 1 to {_v}
+                if {_v} is greater than 53:
+                    stop loop
+            set slot {_v} of metadata tag "gui.drops" of {_p} to loop-value parsed as an itemtype with lore "&bClick to view drops"
+            add 1 to {_v}
+
+
+    else:
+        if yaml value "%{_page}%" of "drops" is set:
+            set {_i} to {_page} parsed as itemtype
+            set metadata tag "gui.drops" of {_p} to chest inventory with 6 rows named itemname({_i})
+            set {_validslots::*} to 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42 and 43 
+
+            loop 54 times:
+                if {_validslots::*} does not contain (loop-value -1):
+                    set slot (loop-value -1) of metadata tag "gui.drops" of {_p} to grey stained glass pane named "&f"
+                else:
+                    set slot (loop-value -1) of metadata tag "gui.drops" of {_p} to white stained glass pane named "&f"
+
+            
+            set {_v} to 0
+
+            loop yaml nodes with keys "%{_page}%" of "drops":
+                
+                while {_validslots::*} does not contain {_v}:
+                    add 1 to {_v}
+                    if {_v} is greater than 53:
+                        stop loop
+
+                set {_type} to yaml value "%{_page}%.%loop-value%.type" of "drops"
+                set {_countmin} to yaml value "%{_page}%.%loop-value%.countmin" of "drops"
+                set {_countmax} to yaml value "%{_page}%.%loop-value%.countmax" of "drops"
+                set {_chance} to yaml value "%{_page}%.%loop-value%.chance" of "drops"
+                set {_fortune} to yaml value "%{_page}%.%loop-value%.fortune" of "drops"
+                if {_countmin} = {_countmax}:
+                    set {_amount} to "%{_countmax}%"
+                else:
+                    set {_amount} to "%{_countmin}%-%{_countmax}%"
+
+                if yaml value "%{_page}%.%loop-value%.type" of "drops" is "item":
+                    set {_item} to yaml value "%{_page}%.%loop-value%.item" of "drops" parsed as an itemtype
+                    set slot {_v} of metadata tag "gui.drops" of {_p} to {_item} with lore "&fChance: &e%{_chance}%%%", "&fAmount: &b%{_amount}%" and "&fFortune Affects: &c%{_fortune}%"
+        
+                else if yaml value "%{_page}%.%loop-value%.type" of "drops" is "id":
+                    set {_id} to yaml value "%{_page}%.%loop-value%.id" of "drops" 
+                    set slot {_v} of metadata tag "gui.drops" of {_p} to {item::%{_id}%} with lore "&fChance: &e%{_chance}%%%", "&fAmount: &b%{_amount}%" and "&fFortune Affects: &c%{_fortune}%"
+
+                else if yaml value "%{_page}%.%loop-value%.type" of "drops" is "mob":
+                    set {_mob_id} to yaml value "%{_page}%.%loop-value%.mob_id" of "drops" 
+                    set {_name} to yaml value "%{_mob_id}%.name" of "mobs"
+                    set slot {_v} of metadata tag "gui.drops" of {_p} to mob({_mob_id}, "spawn_egg") named {_name} with lore "&bClick to view drops.", "", "&fChance: &e%{_chance}%%%" and "&fFortune Affects: &c%{_fortune}%"
+                    set string tag "mobid" of nbt of slot {_v} of metadata tag "gui.drops" of {_p} to {_mob_id}
+
+                else if yaml value "%{_page}%.%loop-value%.type" of "drops" is "xp":
+                    set slot {_v} of metadata tag "gui.drops" of {_p} to experience bottle named "&eXp Orbs" with lore "&fChance: &e%{_chance}%%%", "&fAmount: &b%{_amount}%" and "&fFortune Affects: &c%{_fortune}%"
+    
+                add 1 to {_v}
+
+                set slot 45 of metadata tag "gui.drops" of {_p} to arrow named "&bBack" 
+
+    open metadata tag "gui.drops" of {_p} to {_p}
+
+
+            
+on inventory click:
+    if player's current inventory is metadata tag "gui.drops" of player:
+        cancel event 
+        if event-inventory is metadata tag "gui.drops" of player:  
+            if index of event-slot is 45:
+                dropsgui(player, "main")
+
+            else if line 1 of lore of event-slot is "&bClick to view drops":
+                dropsgui(player, "%type of event-slot%")
+
+            else if string tag "mobid" of nbt of event-slot is not "":
+                set {_mob_id} to string tag "mobid" of nbt of event-slot
+                mobdrops(player, {_mob_id})
+
+
+
+
+on quit:
+    delete metadata tag "gui.editdrops.block" of player
+    delete metadata tag "gui.editdrops.chat" of player
+
+on left click:
+    if {role::%player's uuid%} is "miner":
+        if yaml value "%type of event-block%" of "drops" is set:
+            apply haste 1 without particles to player for 100 seconds replacing existing effect
+        else:
+            remove haste from player
+
+on break:
+    if level of silk touch of player's tool is not greater than 0:
+        player's gamemode is survival
+        if yaml value "%type of event-block%" of "drops" is set:
+            cancel drops 
+            set {_fortune} to (level of fortune of player's tool / 2) + 1
+
+            loop yaml nodes with keys "%type of event-block%" of "drops":
+
+                set {_chance} to yaml value "%type of event-block%.%loop-value%.chance" of "drops"
+
+                if yaml value "%type of event-block%.%loop-value%.fortune" of "drops" is true:
+                    set {_chance} to {_chance} * {_fortune}
+                    if {_chance} is greater than 100:
+                        set {_chance} to 100
+                
+                chance of {_chance}%:
+                    if yaml value "%type of event-block%.%loop-value%.type" of "drops" is "item":
+                        set {_item} to yaml value "%type of event-block%.%loop-value%.item" of "drops" parsed as an itemtype 
+                        set {_countmin} to yaml value "%type of event-block%.%loop-value%.countmin" of "drops"
+                        set {_countmax} to yaml value "%type of event-block%.%loop-value%.countmax" of "drops"
+                        drop (random integer between {_countmin} and {_countmax}) of {_item} at event-block
+
+                    else if yaml value "%type of event-block%.%loop-value%.type" of "drops" is "id":
+                        set {_id} to yaml value "%type of event-block%.%loop-value%.id" of "drops"
+                        set {_item} to {item::%{_id}%}
+                        set {_countmin} to yaml value "%type of event-block%.%loop-value%.countmin" of "drops"
+                        set {_countmax} to yaml value "%type of event-block%.%loop-value%.countmax" of "drops"
+                        drop (random integer between {_countmin} and {_countmax}) of {_item} at event-block
+
+
+                    else if yaml value "%type of event-block%.%loop-value%.type" of "drops" is "mob":
+                        if {role::%player's uuid%} is "miner":
+                            if player is sneaking:
+                                stop
+
+                        set {_mob_id} to yaml value "%type of event-block%.%loop-value%.mob_id" of "drops"
+                        mob({_mob_id}, "spawn", location of event-block)
+
+                    else if yaml value "%type of event-block%.%loop-value%.type" of "drops" is "xp":
+                        set {_countmin} to yaml value "%type of event-block%.%loop-value%.countmin" of "drops"
+                        set {_countmax} to yaml value "%type of event-block%.%loop-value%.countmax" of "drops"
+                        spawn (random integer between {_countmin} and {_countmax}) of xp at event-block
+
+            
+    
+
+
+
+
+                
+
+
+on fish:
+    world of player is "world"
+    if fish state = caught fish:
+        if player's tool is a fishing rod:
+            set {_luck} to (level of luck of the sea of player's tool / 2) + 1
+        else if player's offhand tool is a fishing rod:
+            set {_luck} to (level of luck of the sea of player's offhand tool / 2) + 1
+        if fish hook is in open water:
+            chance of 10 * {_luck}%:
+        
+                chance of 30 * {_luck}%:
+                    spawn 1 of cod at fishing caught entity
+        
+                chance of 30 * {_luck}%:
+                    spawn 1 of salmon at fishing caught entity
+        
+                chance of 15 * {_luck}%:
+                    spawn puffer fish at fishing caught entity
+        
+                chance of 15 * {_luck}%:
+                    spawn 1 of tropical fish at fishing caught entity
+        
+                chance of 7.5 * {_luck}%:
+                    spawn 1 of axolotl at fishing caught entity
+
+                chance of 2.5 * {_luck}%:
+                    spawn 1 of drowned at fishing caught entity:
+                        chance of 2.5 * {_luck}%:
+                            set event-entity's tool to trident
+
+
+
+
+
+
+on death:
+    if victim is a drowned:
+        if victim's tool is a trident:
+            cancel drops 
+            drop 1 of trident at victim 
+
+
+

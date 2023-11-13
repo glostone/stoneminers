@@ -1,0 +1,58 @@
+command /rules:
+    trigger:
+        send "&bNo Discrimination"
+        send "&bRespect the server and its members"
+        send "&bNo N.S.F.W content"
+        send "&bDon't use cheats/hacks/mods or external applications that grant any sort of advantage (Autoclickers to place blocks are allowed, Just dont use that to grief.)"
+        send "&bNo spawn or bed trapping/killing"
+
+
+command /help [<text>]:
+    trigger:
+        send newline
+        if arg-1 is not set:
+            send "&7--------- &bHelp &7---------"
+            send "&f/help &bbasics &7| The ""tutorial"" from when you first join."
+            send "&f/help &binteractions &7| Information about custom interactions."
+            send "&f/help &bcosmetics &7| Information about cosmetics."
+            send "&f/help &bresources &7| A quick guide about resources."
+            send "&f/help &bsummoning &7| A quick guide about summoning."
+        else if arg-1 is "basics":
+            send title "&cCheck chat!" to player for 2 seconds
+            send "&eWelcome to StoneMiners!"
+            wait 2 second
+            send "%nl%&eSome blocks have custom drops, Check them out with /drops!"
+            wait 3 seconds
+            send "%nl%&eYou can get dirt from a composter, Use bonemeal on dirt for grass. (You can also compost rotten flesh and poison potatoes)"
+            wait 4 seconds
+            send "%nl%&eSome recipes were added to your recipe book, Check them out!"
+            wait 2 second
+            send "%nl%&e/home teleports you to your bed and /spawn teleports you to spawn"
+            wait 3 second
+            send "%nl%&ca 6x6 chunk area around spawn resets every 5 hours! So dont build your base there."
+            wait 3 seconds
+            send "%nl%&bFor further information, Check out /help!"
+        else if arg-1 is "interactions":
+            send "&7--------- &bInteractions &7---------"
+            send "&fComposters have a 25%% chance of spawning dirt, and rotten flesh and potatoes can be composted."
+            send "&fYou can bonemeal dirt to turn it into a grass block."
+            send "&fNametagging piglins/hoglins will stop them from transforming."
+        else if arg-1 is "summoning":
+            send "&7--------- &bSummoning &7---------"
+            send "&fFor summoning information, You will need to craft or find summoning tomes. &7(Look for written/enchanted books in your recipe book)"
+        else if arg-1 is "cosmetics":
+            send "&7--------- &bCosmetics &7---------"
+            send "&fYou can purchase cosmetics from /buy"
+            send "&fYou can view all cosmetics & equip them with /cosmetics"
+            send "&fTo view name icons use /nameicon"
+            send "&fTo view name colours use /namecolour"
+            send "&fTo view chat colours use /chatcolour"
+        else:
+            send "&fInvalid argument, run /help for a list of categories."
+
+        
+on tab complete of "help":
+    set tab completions for position 1 to "basics", "interactions", "resources", "cosmetics" and "summoning"
+
+on tab complete of "ver", "version", "bukkit:ver" or "bukkit:version":
+    set tab completions for position 1 to ""

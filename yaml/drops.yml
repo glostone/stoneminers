@@ -1,0 +1,498 @@
+stone block:
+    '0':
+        type: item
+        countmin: 1
+        countmax: 1
+        chance: 80
+        fortune: false
+        id: placeholder
+        item: cobblestone
+    '1':
+        type: item
+        item: stick
+        countmin: 1
+        countmax: 4
+        chance: 15
+        fortune: true
+    '2':
+        type: item
+        item: gravel
+        countmin: 1
+        countmax: 1
+        chance: 10
+        fortune: true
+    '3':
+        type: item
+        item: coal
+        countmin: 1
+        countmax: 1
+        chance: 5
+        fortune: true
+    '4':
+        type: item
+        item: raw iron
+        countmin: 1
+        countmax: 1
+        chance: 2.5
+        fortune: true
+    '5':
+        type: item
+        item: raw copper
+        countmin: 1
+        countmax: 1
+        chance: 5
+        fortune: true
+    '6':
+        type: item
+        item: amethyst shard
+        countmin: 1
+        countmax: 1
+        chance: 2.5
+        fortune: true
+    '7':
+        type: item
+        item: pointed dripstone
+        countmin: 1
+        countmax: 1
+        chance: 1
+        fortune: true
+    '8':
+        type: item
+        item: emerald
+        countmin: 1
+        countmax: 1
+        chance: 1
+        fortune: true
+    '9':
+        type: item
+        item: lapis
+        countmin: 1
+        countmax: 1
+        chance: 0.5
+        fortune: true
+    '10':
+        type: item
+        item: diamond
+        countmin: 1
+        countmax: 1
+        chance: 0.1
+        fortune: true
+    '11':
+        type: mob
+        countmin: 1
+        countmax: 1
+        chance: 5
+        fortune: false
+        mob_id: undead_miner
+    '12':
+        type: mob
+        countmin: 1
+        countmax: 1
+        chance: 1
+        fortune: false
+        mob_id: stone_fish
+
+gravel block:
+    '0':
+        type: item
+        item: gravel
+        countmin: 1
+        countmax: 1
+        chance: 80
+        fortune: false
+    '1':
+        type: item
+        item: sand
+        countmin: 1
+        countmax: 1
+        chance: 10
+        fortune: true
+    '2':
+        type: item
+        item: coal
+        countmin: 1
+        countmax: 1
+        chance: 5
+        fortune: true
+    '3':
+        type: item
+        item: raw iron
+        countmin: 1
+        countmax: 1
+        chance: 2.5
+        fortune: true
+    '4':
+        type: item
+        item: raw copper
+        countmin: 1
+        countmax: 1
+        chance: 10
+        fortune: true
+    '5':
+        type: item
+        item: emerald
+        countmin: 1
+        countmax: 1
+        chance: 1
+        fortune: true
+    '6':
+        type: item
+        item: lapis
+        countmin: 1
+        countmax: 1
+        chance: 2
+        fortune: true
+    '7':
+        type: item
+        item: flint
+        countmin: 1
+        countmax: 1
+        chance: 10
+        fortune: true
+
+sand block:
+    '0':
+        type: item
+        item: sand
+        countmin: 1
+        countmax: 1
+        chance: 80
+        fortune: false
+    '1':
+        type: item
+        item: red sand
+        countmin: 1
+        countmax: 1
+        chance: 10
+        fortune: true
+    '2':
+        type: item
+        item: stick
+        countmin: 1
+        countmax: 4
+        chance: 20
+        fortune: true
+    '3':
+        type: item
+        item: kelp
+        countmin: 1
+        countmax: 1
+        chance: 25
+        fortune: true
+    '4':
+        type: item
+        item: clay
+        countmin: 1
+        countmax: 4
+        chance: 10
+        fortune: true
+    '5':
+        type: item
+        item: sugar cane
+        countmin: 1
+        countmax: 1
+        chance: 15
+        fortune: true
+    '6':
+        type: item
+        item: raw iron
+        countmin: 1
+        countmax: 1
+        chance: 5
+        fortune: true
+    '7':
+        type: item
+        item: emerald
+        countmin: 1
+        countmax: 1
+        chance: 2
+        fortune: true
+    '8':
+        type: item
+        item: diamond
+        countmin: 1
+        countmax: 1
+        chance: 0.25
+        fortune: true
+    '9':
+        type: mob
+        countmin: 1
+        countmax: 1
+        chance: 1.5
+        fortune: false
+        mob_id: sand_fish
+
+red sand block:
+    '0':
+        type: item
+        item: red sand
+        countmin: 1
+        countmax: 1
+        chance: 80
+        fortune: false
+    '1':
+        type: item
+        item: stick
+        countmin: 1
+        countmax: 4
+        chance: 20
+        fortune: true
+    '2':
+        type: item
+        item: raw iron
+        countmin: 1
+        countmax: 1
+        chance: 5
+        fortune: true
+    '3':
+        type: item
+        item: raw gold
+        countmin: 1
+        countmax: 1
+        chance: 5
+        fortune: true
+    '4':
+        type: item
+        item: magma cream
+        countmin: 1
+        countmax: 1
+        chance: 5
+        fortune: true
+    '5':
+        type: item
+        item: diamond
+        countmin: 1
+        countmax: 1
+        chance: 0.5
+        fortune: true
+    '6':
+        type: item
+        item: redstone
+        countmin: 1
+        countmax: 1
+        chance: 1
+        fortune: true
+    '7':
+        type: mob
+        countmin: 1
+        countmax: 1
+        chance: 2
+        fortune: false
+        mob_id: sand_fish
+
+dirt block:
+    '0':
+        type: item
+        item: dirt
+        countmin: 1
+        countmax: 1
+        chance: 80
+        fortune: false
+    '1':
+        type: item
+        item: beetroot seeds
+        countmin: 1
+        chance: 5
+        fortune: true
+        countmax: 1
+    '2':
+        type: item
+        countmin: 1
+        countmax: 1
+        chance: 5
+        fortune: true
+        id: placeholder
+        item: wheat seeds
+    '3':
+        type: item
+        item: melon seeds
+        countmin: 1
+        countmax: 1
+        chance: 5
+        fortune: true
+    '4':
+        type: item
+        item: pumpkin seeds
+        countmin: 1
+        countmax: 1
+        chance: 5
+        fortune: true
+    '5':
+        type: item
+        item: carrot
+        countmin: 1
+        countmax: 1
+        chance: 5
+        fortune: true
+    '6':
+        type: item
+        item: potato
+        countmin: 1
+        countmax: 1
+        chance: 5
+        fortune: true
+    '7':
+        type: item
+        item: cocoa beans
+        countmin: 1
+        countmax: 1
+        chance: 5
+        fortune: true
+    '8':
+        type: item
+        item: oak sapling
+        countmin: 1
+        countmax: 1
+        chance: 2.5
+        fortune: true
+    '9':
+        type: item
+        item: spruce sapling
+        countmin: 1
+        countmax: 1
+        chance: 2.5
+        fortune: true
+    '10':
+        type: item
+        item: birch sapling
+        countmin: 1
+        countmax: 1
+        chance: 2.5
+        fortune: true
+    '11':
+        type: item
+        item: jungle sapling
+        countmin: 1
+        countmax: 1
+        chance: 2.5
+        fortune: true
+    '12':
+        type: item
+        item: acacia sapling
+        countmin: 1
+        countmax: 1
+        chance: 2.5
+        fortune: true
+    '13':
+        type: item
+        item: dark oak sapling
+        countmin: 1
+        countmax: 1
+        chance: 2.5
+        fortune: true
+    '14':
+        type: item
+        item: red mushroom
+        countmin: 1
+        countmax: 1
+        chance: 2.5
+        fortune: true
+    '15':
+        type: item
+        item: brown mushroom
+        countmin: 1
+        countmax: 1
+        chance: 2.5
+        fortune: true
+    '16':
+        type: item
+        item: cherry sapling
+        countmin: 1
+        countmax: 1
+        chance: 2.5
+        fortune: true
+    '17':
+        type: item
+        item: bamboo
+        countmin: 1
+        chance: 1
+        fortune: true
+        countmax: 1
+
+mud:
+    '0':
+        type: item
+        item: mud
+        countmin: 1
+        countmax: 1
+        chance: 80
+        fortune: false
+    '1':
+        type: item
+        item: mangrove propagule
+        countmin: 1
+        countmax: 1
+        chance: 15
+        fortune: true
+    '2':
+        type: item
+        item: slime ball
+        countmin: 1
+        countmax: 1
+        chance: 2.5
+        fortune: true
+
+deepslate block:
+    '0':
+        type: item
+        item: cobbled deepslate
+        countmin: 1
+        countmax: 1
+        chance: 80
+        fortune: false
+    '1':
+        type: item
+        item: coal
+        countmin: 1
+        countmax: 1
+        chance: 7.5
+        fortune: true
+    '2':
+        type: item
+        item: raw iron
+        countmin: 1
+        countmax: 1
+        chance: 5
+        fortune: true
+    '3':
+        type: item
+        item: raw gold
+        countmin: 1
+        countmax: 1
+        chance: 2
+        fortune: true
+    '4':
+        type: item
+        item: amethyst shard
+        countmin: 1
+        countmax: 1
+        chance: 4
+        fortune: true
+    '5':
+        type: item
+        item: pointed dripstone
+        countmin: 1
+        countmax: 1
+        chance: 2
+        fortune: true
+    '6':
+        type: item
+        item: emerald
+        countmin: 1
+        countmax: 1
+        chance: 1.5
+        fortune: true
+    '7':
+        type: item
+        item: lapis
+        countmin: 1
+        countmax: 1
+        chance: 2.5
+        fortune: true
+    '8':
+        type: item
+        item: diamond
+        countmin: 1
+        countmax: 1
+        chance: 0.25
+        fortune: true

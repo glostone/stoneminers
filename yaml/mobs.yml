@@ -1,0 +1,164 @@
+placeholder:
+    egg_item: ghast spawn egg
+    entity: zombie
+    name: ''
+    stats:
+        health: 20
+        damage: 5
+        speed: 1
+    equipment:
+        offhand: none
+        mainhand: none
+        helmet: none
+        chestplate: none
+        leggings: none
+        boots: none
+
+undead_miner:
+    egg_item: skeleton skull
+    entity: skeleton
+    name: "&2Undead Miner"
+    stats:
+        health: 20
+        damage: 5
+        speed: 1
+    equipment:
+        offhand: none
+        mainhand: undead_miners_pickaxe
+        helmet: none
+        chestplate: undead_miners_chestplate
+        leggings: none
+        boots: none
+    drops:
+        '0':
+            type: id
+            countmin: 1
+            countmax: 1
+            chance: 1
+            looting: true
+            id: undead_miners_pickaxe
+        '1':
+            type: id
+            countmin: 1
+            countmax: 1
+            chance: 0.1
+            looting: true
+            id: undead_miners_chestplate
+        '2':
+            type: id
+            countmin: 1
+            countmax: 1
+            chance: 0.01
+            looting: true
+            id: undead_miners_skull
+        '3':
+            type: item
+            item: cobblestone
+            countmin: 5
+            countmax: 15
+            chance: 10
+            looting: true
+        '4':
+            type: item
+            item: raw iron
+            countmin: 1
+            countmax: 3
+            chance: 5
+            looting: true
+        '5':
+            type: item
+            item: raw gold
+            countmin: 1
+            countmax: 3
+            chance: 5
+            looting: true
+        '6':
+            type: item
+            item: raw copper
+            countmin: 1
+            countmax: 8
+            chance: 5
+            looting: true
+        '7':
+            type: item
+            item: coal
+            countmin: 1
+            countmax: 5
+            chance: 5
+            looting: true
+        '8':
+            type: item
+            item: diamond
+            countmin: 1
+            countmax: 1
+            chance: 0.1
+            looting: true
+
+sand_fish:
+    egg_item: camel spawn egg
+    entity: silverfish
+    name: "&eSand Fish"
+    stats:
+        health: 5
+        damage: 2
+        speed: 1
+    equipment:
+        offhand: none
+        mainhand: none
+        helmet: none
+        chestplate: none
+        leggings: none
+        boots: none
+    drops:
+        '0':
+            type: item
+            item: sand
+            countmin: 0
+            countmax: 3
+            chance: 100
+            looting: false
+        '1':
+            type: id
+            countmin: 1
+            countmax: 1
+            chance: 0.1
+            looting: true
+            id: sand_shovel
+        '2':
+            type: item
+            item: string
+            countmin: 0
+            countmax: 3
+            chance: 75
+            looting: true
+
+stone_fish:
+    egg_item: silverfish spawn egg
+    entity: silverfish
+    name: "&7Stone Fish"
+    stats:
+        health: 5
+        damage: 2
+        speed: 1
+    equipment:
+        offhand: none
+        mainhand: none
+        helmet: none
+        chestplate: none
+        leggings: none
+        boots: none
+    drops:
+        '0':
+            type: item
+            item: gravel
+            countmin: 1
+            countmax: 5
+            chance: 100
+            looting: true
+        '1':
+            type: item
+            item: string
+            countmin: 0
+            countmax: 3
+            chance: 75
+            looting: true

@@ -1,0 +1,752 @@
+on load:
+    load yaml "plugins/Skript/yaml/mobs.yml" as "mobs"
+
+command /editmob <text>:
+    usage: &c/editmob <mobid>
+    permission: stoneminers.editmob
+    trigger:
+        editmobs(player, arg-1)
+
+
+command /deletemob <text>:
+    usage: &c/deletemob <mobid>
+    permission: stoneminers.deletemob 
+    trigger:
+        if yaml value arg-1 of "mobs" is set:
+            delete yaml value arg-1 of "mobs"
+            save yaml "mobs"
+            send "&cThe mob %arg-1% has been deleted."
+        else:
+            send "&cThat mob does not exist."
+
+function editmobdrops(p: player, mobid: string):
+    set {_name} to formatstring("%{_mobid}%")
+    set metadata tag "gui.editmobdrops" of {_p} to chest inventory with 6 rows named "%{_name}%"
+    set metadata tag "gui.editmobdrops.mob" of {_p} to {_mobid}
+    loop 54 times:
+        set slot loop-value -1 of metadata tag "gui.editmobdrops" of {_p} to grey stained glass pane named "&f"
+    set {_v} to 0
+    loop yaml nodes with keys "%{_mobid}%.drops" of "mobs":
+        if yaml value "%{_mobid}%.drops.%loop-value%.type" of "mobs" is "item":
+            set {_item} to yaml value "%{_mobid}%.drops.%loop-value%.item" of "mobs" parsed as an itemtype
+            set {_name} to yaml value "%{_mobid}%.drops.%loop-value%.item" of "mobs"
+
+            set {_countmin} to yaml value "%{_mobid}%.drops.%loop-value%.countmin" of "mobs"
+            set {_countmax} to yaml value "%{_mobid}%.drops.%loop-value%.countmax" of "mobs"
+            set {_chance} to yaml value "%{_mobid}%.drops.%loop-value%.chance" of "mobs"
+            set {_looting} to yaml value "%{_mobid}%.drops.%loop-value%.looting" of "mobs"
+
+            
+            if {_item} is air:
+                set {_item} to stone 
+                set yaml value "%{_mobid}%.drops.%loop-value%.item" of "mobs" to "stone"
+
+            set slot {_v} of metadata tag "gui.editmobdrops" of {_p} to {_item} named "&fItem" with lore "&fItem: %{_item}%", "", "&fCount: &b%{_countmin}%-%{_countmax}%", "&fChance: &a%{_chance}%%%", "&fLooting: &c%{_looting}%", "", "&bLeft-Click to set count.", "&bMiddle-Click to set item.", "&bRight-Click to set chance.", "&bF to change type to ID", "&bNumber Keys to toggle looting" and "&c&lCtrl + Q to delete."
+            add 1 to {_v}
+
+        else if yaml value "%{_mobid}%.drops.%loop-value%.type" of "mobs" is "id":
+            set {_id} to yaml value "%{_mobid}%.drops.%loop-value%.id" of "mobs" 
+            set {_item} to {item::%{_id}%}
+
+            set {_countmin} to yaml value "%{_mobid}%.drops.%loop-value%.countmin" of "mobs"
+            set {_countmax} to yaml value "%{_mobid}%.drops.%loop-value%.countmax" of "mobs"
+            set {_chance} to yaml value "%{_mobid}%.drops.%loop-value%.chance" of "mobs"
+            set {_looting} to yaml value "%{_mobid}%.drops.%loop-value%.looting" of "mobs"
+
+            set slot {_v} of metadata tag "gui.editmobdrops" of {_p} to {_item} named "&bID" with lore "&fItem Id: &e%{_id}%", "&fCount: &b%{_countmin}%-%{_countmax}%", "&fChance: &a%{_chance}%%%", "&fLooting: &c%{_looting}%", "", "&bLeft-Click to set count.", "&bMiddle-Click to set item.", "&bRight-Click to set chance.", "&bF to change type to Entity", "&bNumber keys to toggle looting" and "&c&lCtrl + Q to delete."  with all flags hidden
+
+            add 1 to {_v}
+
+        else if yaml value "%{_mobid}%.drops.%loop-value%.type" of "mobs" is "xp":
+
+            set {_countmin} to yaml value "%{_mobid}%.drops.%loop-value%.countmin" of "mobs"
+            set {_countmax} to yaml value "%{_mobid}%.drops.%loop-value%.countmax" of "mobs"
+            set {_chance} to yaml value "%{_mobid}%.drops.%loop-value%.chance" of "mobs"
+            set {_looting} to yaml value "%{_mobid}%.drops.%loop-value%.looting" of "mobs"
+
+            set slot {_v} of metadata tag "gui.editmobdrops" of {_p} to experience bottle named "&eXp" with lore "&fCount: &b%{_countmin}%-%{_countmax}%", "&fChance: &a%{_chance}%%%", "&fLooting: &c%{_looting}%", "", "&bLeft-Click to set count.", "&bMiddle-Click to set item.", "&bRight-Click to set chance.", "&bF to change type to Item", "&bNumber keys to toggle looting" and "&c&lCtrl + Q to delete." with all flags hidden
+            add 1 to {_v}
+
+
+
+
+    set slot {_v} of metadata tag "gui.editmobdrops" of {_p} to lime dye named "&aAdd New Drop"
+    wait 1 tick
+    open metadata tag "gui.editmobdrops" of {_p} to {_p}
+
+on inventory click:
+    if player's current inventory is metadata tag "gui.editmobdrops" of player:
+        cancel event 
+        if event-inventory is metadata tag "gui.editmobdrops" of player:
+            set {_mobid} to metadata tag "gui.editmobdrops.mob" of player
+            if name of event-slot is "&aAdd New Drop":
+                set yaml value "%{_mobid}%.drops.%index of event-slot%.type" of "mobs" to "item"
+                set yaml value "%{_mobid}%.drops.%index of event-slot%.item" of "mobs" to "stone"
+                set yaml value "%{_mobid}%.drops.%index of event-slot%.countmin" of "mobs" to 1
+                set yaml value "%{_mobid}%.drops.%index of event-slot%.countmax" of "mobs" to 1
+                set yaml value "%{_mobid}%.drops.%index of event-slot%.chance" of "mobs" to 0
+                set yaml value "%{_mobid}%.drops.%index of event-slot%.looting" of "mobs" to true
+                save yaml "mobs"
+                editmobdrops(player, {_mobid})
+
+            else:
+                if event-slot is not grey stained glass pane named "&f":
+                    set {_type} to yaml value "%{_mobid}%.drops.%index of event-slot%.type" of "mobs"
+
+                    if click action is left mouse button:
+                        close player's inventory 
+                        if {_type} is not "mob":
+                            set metadata tag "gui.editmobdrops.chat" of player to "setcount"
+                            set metadata tag "gui.editmobdrops.drop" of player to index of event-slot
+                            send "&fType the count in chat formatted as ""&bCountMin-CountMax&f"", or type ""Q"" to cancel."
+
+                    else if click action is middle mouse button:
+                        if {_type} is "id":
+                            set metadata tag "gui.editmobdrops.chat" of player to "setid"
+                            close player's inventory 
+                            set metadata tag "gui.editmobdrops.drop" of player to index of event-slot
+                            send "&fType the item id in chat, or type ""Q"" to cancel."
+
+                        else if {_type} is "mob":
+                            set metadata tag "gui.editmobdrops.chat" of player to "setmobid"
+                            close player's inventory 
+                            set metadata tag "gui.editmobdrops.drop" of player to index of event-slot
+                            send "&fType the mob id in chat, or type ""Q"" to cancel."
+
+                        else if {_type} is "item":
+                            set metadata tag "gui.editmobdrops.chat" of player to "setitem"
+                            close player's inventory 
+                            set metadata tag "gui.editmobdrops.drop" of player to index of event-slot
+                            send "&fType the item in chat, or type ""Q"" to cancel."
+
+                    else if click action is right mouse button:
+                        close player's inventory 
+                        set metadata tag "gui.editmobdrops.drop" of player to index of event-slot
+                        set metadata tag "gui.editmobdrops.chat" of player to "setchance"
+                        send "&fType the chance in chat, or type ""Q"" to cancel."
+
+                    
+                    else if click action is swap offhand:
+                        if yaml value "%{_mobid}%.drops.%index of event-slot%.type" of "mobs" is "item":
+                            set yaml value "%{_mobid}%.drops.%index of event-slot%.type" of "mobs" to "id"
+                            set yaml value "%{_mobid}%.drops.%index of event-slot%.id" of "mobs" to "placeholder"
+                            delete yaml value "%{_mobid}%.drops.%index of event-slot%.item" of "mobs"
+
+                        else if yaml value "%{_mobid}%.drops.%index of event-slot%.type" of "mobs" is "id":
+                            set yaml value "%{_mobid}%.drops.%index of event-slot%.type" of "mobs" to "xp"
+                            delete yaml value "%{_mobid}%.drops.%index of event-slot%.mob_id" of "mobs"
+
+                        else if yaml value "%{_mobid}%.drops.%index of event-slot%.type" of "mobs" is "xp":
+                            set yaml value "%{_mobid}%.drops.%index of event-slot%.item" of "mobs" to "stone"
+                            set yaml value "%{_mobid}%.drops.%index of event-slot%.type" of "mobs" to "item"
+
+                        save yaml "mobs"
+                        editmobdrops(player, {_mobid})
+
+                    else if click action is number key:
+                        if yaml value "%{_mobid}%.drops.%index of event-slot%.looting" of "mobs" is true:
+                            set yaml value "%{_mobid}%.drops.%index of event-slot%.looting" of "mobs" to false
+
+                        else if yaml value "%{_mobid}%.drops.%index of event-slot%.looting" of "mobs" is false:
+                            set yaml value "%{_mobid}%.drops.%index of event-slot%.looting" of "mobs" to true
+
+
+                        save yaml "mobs"
+                        editmobdrops(player, {_mobid})
+                
+
+
+on chat:
+    if metadata tag "gui.editmobdrops.chat" of player is set: 
+        cancel event 
+        set {_mobid} to metadata tag "gui.editmobdrops.mob" of player
+        set {_drop} to metadata tag "gui.editmobdrops.drop" of player
+
+        if message is "Q":
+            delete metadata tag "gui.editmobdrops.chat" of player
+            send "&cProcess cancelled." to player 
+            editmobdrops(player, {_mobid})
+
+        else:
+            if metadata tag "gui.editmobdrops.chat" of player is "setcount":
+                set {_message::*} to message split at "-"
+                if {_message::1} parsed as an integer is not set:
+                    if {_message::2} parsed as an integer is not set:
+                        send "&cPlease format the message correctly!" to player 
+                        stop
+
+                set yaml value "%{_mobid}%.drops.%{_drop}%.countmin" of "mobs" to {_message::1}
+                set yaml value "%{_mobid}%.drops.%{_drop}%.countmax" of "mobs" to {_message::2}
+                save yaml "mobs"
+                editmobdrops(player, {_mobid})
+                delete metadata tag "gui.editmobdrops.chat" of player
+        
+            else if metadata tag "gui.editmobdrops.chat" of player is "setid":
+                if {item::%message%} is set:
+                    set yaml value "%{_mobid}%.drops.%{_drop}%.id" of "mobs" to message 
+                    save yaml "mobs"
+                    editmobdrops(player, {_mobid})
+                    delete metadata tag "gui.editmobdrops.chat" of player
+                else:
+                    send "&cInvalid item id."
+
+            else if metadata tag "gui.editmobdrops.chat" of player is "setitem":
+                if message parsed as an itemtype is set:
+                    set yaml value "%{_mobid}%.drops.%{_drop}%.item" of "mobs" to message 
+                    save yaml "mobs"
+                    editmobdrops(player, {_mobid})
+                    delete metadata tag "gui.editmobdrops.chat" of player
+                else:
+                    send "&cInvalid itemtype."
+
+            else if metadata tag "gui.editmobdrops.chat" of player is "setchance":
+                if message parsed as a number is set:
+                    set yaml value "%{_mobid}%.drops.%{_drop}%.chance" of "mobs" to message parsed as a number
+                    save yaml "mobs"
+                    editmobdrops(player, {_mobid})
+                    delete metadata tag "gui.editmobdrops.chat" of player
+                else:
+                    send "&cThat is not a number."
+
+            else:
+                delete metadata tag "gui.editmobdrops.chat" of player
+
+function editmobs(p: player, mobid: string):
+    set {_name} to formatstring("%{_mobid}%")
+    set metadata tag "gui.editmobs" of {_p} to chest inventory with 6 rows named "%{_name}%"
+    set metadata tag "gui.editmobs.mobs" of {_p} to {_mobid}
+
+    loop 54 times:
+        set slot loop-value -1 of metadata tag "gui.editmobs" of {_p} to grey stained glass pane named "&f"
+
+    if yaml value {_mobid} of "mobs" is not set:
+        set yaml value "%{_mobid}%.egg_item" of "mobs" to "ghast spawn egg"
+        set yaml value "%{_mobid}%.entity" of "mobs" to "zombie"
+        set yaml value "%{_mobid}%.name" of "mobs" to ""
+
+        set yaml value "%{_mobid}%.stats.health" of "mobs" to 20
+        set yaml value "%{_mobid}%.stats.damage" of "mobs" to 5
+        set yaml value "%{_mobid}%.stats.speed" of "mobs" to 1
+        
+
+        set yaml value "%{_mobid}%.equipment.offhand" of "mobs" to "none"
+        set yaml value "%{_mobid}%.equipment.mainhand" of "mobs" to "none"
+        set yaml value "%{_mobid}%.equipment.helmet" of "mobs" to "none"
+        set yaml value "%{_mobid}%.equipment.chestplate" of "mobs" to "none"
+        set yaml value "%{_mobid}%.equipment.leggings" of "mobs" to "none"
+        set yaml value "%{_mobid}%.equipment.boots" of "mobs" to "none"
+        save yaml "mobs"
+
+    set {_egg_item} to yaml value "%{_mobid}%.egg_item" of "mobs"
+    set {_entity} to yaml value "%{_mobid}%.entity" of "mobs"
+    set {_name} to yaml value "%{_mobid}%.name" of "mobs"
+
+    set {_health} to yaml value "%{_mobid}%.stats.health" of "mobs"
+    set {_speed} to yaml value "%{_mobid}%.stats.speed" of "mobs"
+    set {_damage} to yaml value "%{_mobid}%.stats.damage" of "mobs"
+
+    set {_offhand} to yaml value "%{_mobid}%.equipment.offhand" of "mobs"
+    set {_mainhand} to yaml value "%{_mobid}%.equipment.mainhand" of "mobs"
+    set {_helmet} to yaml value "%{_mobid}%.equipment.helmet" of "mobs"
+    set {_chestplate} to yaml value "%{_mobid}%.equipment.chestplate" of "mobs"
+    set {_leggings} to yaml value "%{_mobid}%.equipment.leggings" of "mobs"
+    set {_boots} to yaml value "%{_mobid}%.equipment.boots" of "mobs"
+
+    if {item::%{_helmet}%} is not set:
+        set {_helmet} to "none"
+    if {item::%{_chestplate}%} is not set:
+        set {_chestplate} to "none"
+    if {item::%{_leggings}%} is not set:
+        set {_leggings} to "none"
+    if {item::%{_boots}%} is not set:
+        set {_boots} to "none"
+    if {item::%{_mainhand}%} is not set:
+        set {_mainhand} to "none"
+    if {item::%{_offhand}%} is not set:
+        set {_offhand} to "none"
+
+    
+    set slot 10 of metadata tag "gui.editmobs" of {_p} to lime dye named "&aHealth:&f %{_health}%"
+    set slot 19 of metadata tag "gui.editmobs" of {_p} to red dye named "&cDamage:&f %{_damage}%"
+    set slot 28 of metadata tag "gui.editmobs" of {_p} to yellow dye named "&eSpeed:&f %{_speed}%"
+    set slot 37 of metadata tag "gui.editmobs" of {_p} to air
+
+    if {_helmet} is "none":
+        set {_i} to leather helmet
+    else:
+        set {_i} to {item::%{_helmet}%} with all flags hidden
+
+    set slot 12 of metadata tag "gui.editmobs" of {_p} to {_i} named "&fHelmet" with lore "&bItem Id: %{_helmet}%"
+
+
+    if {_chestplate} is "none":
+        set {_i} to leather chestplate
+    else:
+        set {_i} to {item::%{_chestplate}%} with all flags hidden
+
+    set slot 21 of metadata tag "gui.editmobs" of {_p} to {_i} named "&fChestplate" with lore "&bItem Id: %{_chestplate}%"
+
+    if {_leggings} is "none":
+        set {_i} to leather leggings
+    else:
+        set {_i} to {item::%{_leggings}%} with all flags hidden
+
+    set slot 30 of metadata tag "gui.editmobs" of {_p} to {_i} named "&fLeggings" with lore "&bItem Id: %{_leggings}%"
+
+    if {_boots} is "none":
+        set {_i} to leather boots
+    else:
+        set {_i} to {item::%{_boots}%} with all flags hidden
+
+    set slot 39 of metadata tag "gui.editmobs" of {_p} to {_i} named "&fBoots" with lore "&bItem Id: %{_boots}%"
+
+
+    if {_mainhand} is "none":
+        set {_i} to wooden sword
+    else:
+        set {_i} to {item::%{_mainhand}%} with all flags hidden
+
+    set slot 14 of metadata tag "gui.editmobs" of {_p} to {_i} named "&fMain Hand" with lore "&bItem Id: %{_mainhand}%"
+
+    if {_offhand} is "none":
+        set {_i} to shield
+    else:
+        set {_i} to {item::%{_offhand}%} with all flags hidden
+
+    set slot 23 of metadata tag "gui.editmobs" of {_p} to {_i} named "&fOffhand" with lore "&bItem Id: %{_offhand}%"
+
+    set slot 32 of metadata tag "gui.editmobs" of {_p} to air
+    set slot 41 of metadata tag "gui.editmobs" of {_p} to air
+
+    set slot 16 of metadata tag "gui.editmobs" of {_p} to ({_egg_item} parsed as a itemtype) named "&fEgg Item" with lore "&bItem: %{_egg_item}%"
+    set slot 25 of metadata tag "gui.editmobs" of {_p} to (zombie skull) named "&fEntity Type" with lore "&bEntity: %{_entity}%"
+    set slot 34 of metadata tag "gui.editmobs" of {_p} to (name tag) named "&fName" with lore "&bName: %{_name}%"
+    set slot 43 of metadata tag "gui.editmobs" of {_p} to (rotten flesh) named "&fDrops" with lore "&bClick to open menu"
+
+
+    open metadata tag "gui.editmobs" of {_p} to {_p}
+    
+on inventory click:
+    if player's current inventory is metadata tag "gui.editmobs" of player:
+        cancel event 
+        if event-inventory is metadata tag "gui.editmobs" of player:
+            if event-slot is lime dye:
+                set metadata tag "gui.editmobs.chat" of player to "sethealth"
+                send "&fType the health integer in chat formatted as ""&bHealth&f"", or type ""Q"" to cancel."
+                close player's inventory
+
+            else if event-slot is yellow dye:
+                set metadata tag "gui.editmobs.chat" of player to "setspeed"
+                send "&fType the speed number in chat formatted as ""&bSpeed&f"", or type ""Q"" to cancel."
+
+                close player's inventory
+
+            else if event-slot is red dye:
+                set metadata tag "gui.editmobs.chat" of player to "setdamage"
+                send "&fType the damage number in chat formatted as ""&bDamage&f"", or type ""Q"" to cancel."
+                close player's inventory
+
+            else if name of event-slot is "&fHelmet":
+                set metadata tag "gui.editmobs.chat" of player to "sethelmet"
+                send "&fType the Helmet Item ID in chat formatted as ""&bItem Id&f"", or type ""Q"" to cancel."
+                close player's inventory
+
+            else if name of event-slot is "&fChestplate":
+                set metadata tag "gui.editmobs.chat" of player to "setchestplate"
+                send "&fType the Chestplate Item ID in chat formatted as ""&bItem Id&f"", or type ""Q"" to cancel."
+                close player's inventory
+
+            else if name of event-slot is "&fLeggings":
+                set metadata tag "gui.editmobs.chat" of player to "setleggings"
+                send "&fType the Leggings Item ID in chat formatted as ""&bItem Id&f"", or type ""Q"" to cancel."
+                close player's inventory
+
+            else if name of event-slot is "&fBoots":
+                set metadata tag "gui.editmobs.chat" of player to "setboots"
+                send "&fType the Boots Item ID in chat formatted as ""&bItem Id&f"", or type ""Q"" to cancel."
+                close player's inventory
+
+            else if name of event-slot is "&fMain Hand":
+                set metadata tag "gui.editmobs.chat" of player to "setmainhand"
+                send "&fType the Main Hand Item ID in chat formatted as ""&bItem Id&f"", or type ""Q"" to cancel."
+                close player's inventory
+
+            else if name of event-slot is "&fOffhand":
+                set metadata tag "gui.editmobs.chat" of player to "setoffhand"
+                send "&fType the Offhand Item ID in chat formatted as ""&bItem Id&f"", or type ""Q"" to cancel."
+                close player's inventory
+
+            else if name of event-slot is "&fEgg Item":
+                set metadata tag "gui.editmobs.chat" of player to "seteggitem"
+                send "&fType the Egg Item in chat formatted as ""&bMinecraft Item&f"", or type ""Q"" to cancel."
+                close player's inventory
+
+            else if name of event-slot is "&fEntity Type":
+                set metadata tag "gui.editmobs.chat" of player to "setentity"
+                send "&fType the entity type in chat formatted as ""&bEntity Type&f"", or type ""Q"" to cancel."
+                close player's inventory
+
+
+            else if name of event-slot is "&fName":
+                set metadata tag "gui.editmobs.chat" of player to "setname"
+                send "&fType the name in chat formatted as ""&bName&f"", or type ""Q"" to cancel."
+                close player's inventory
+
+
+            else if name of event-slot is "&fDrops":
+                editmobdrops(player, metadata tag "gui.editmobs.mobs" of player)
+
+
+on chat:
+    if metadata tag "gui.editmobs.chat" of player is set: 
+        cancel event 
+        set {_mob} to metadata tag "gui.editmobs.mobs" of player
+
+        if message is "Q":
+            delete metadata tag "gui.editmobs.chat" of player
+            send "&cProcess cancelled." to player 
+            editmobs(player, {_mob})
+
+        else:
+            if metadata tag "gui.editmobs.chat" of player is "sethealth":
+                set {_message} to message parsed as an integer
+                if {_message} is set:
+                    set yaml value "%{_mob}%.stats.health" of "mobs" to {_message}
+                    save yaml "mobs"
+                    editmobs(player, {_mob})
+                    delete metadata tag "gui.editmobs.chat" of player
+                else:
+                    send "&cInvalid format, Please use an integer."
+
+            else if metadata tag "gui.editmobs.chat" of player is "setspeed":
+                set {_message} to message parsed as an number
+                if {_message} is set:
+                    set yaml value "%{_mob}%.stats.speed" of "mobs" to {_message}
+                    save yaml "mobs"
+                    editmobs(player, {_mob})
+                    delete metadata tag "gui.editmobs.chat" of player
+                else:
+                    send "&cInvalid format, Please use an number."
+
+
+            else if metadata tag "gui.editmobs.chat" of player is "setdamage":
+                set {_message} to message parsed as an number
+                if {_message} is set:
+                    set yaml value "%{_mob}%.stats.damage" of "mobs" to {_message}
+                    save yaml "mobs"
+                    editmobs(player, {_mob})
+                    delete metadata tag "gui.editmobs.chat" of player
+                else:
+                    send "&cInvalid format, Please use an number."
+
+
+            else if metadata tag "gui.editmobs.chat" of player is "sethelmet":
+                set {_message} to message
+                if {item::%{_message}%} is set:
+                    set yaml value "%{_mob}%.equipment.helmet" of "mobs" to {_message}
+                    save yaml "mobs"
+                    editmobs(player, {_mob})
+                    delete metadata tag "gui.editmobs.chat" of player
+                else:
+                    send "&cInvalid item id."
+
+            else if metadata tag "gui.editmobs.chat" of player is "setchestplate":
+                set {_message} to message
+                if {item::%{_message}%} is set:
+                    set yaml value "%{_mob}%.equipment.chestplate" of "mobs" to {_message}
+                    save yaml "mobs"
+                    editmobs(player, {_mob})
+                    delete metadata tag "gui.editmobs.chat" of player
+                else:
+                    send "&cInvalid item id."
+
+            else if metadata tag "gui.editmobs.chat" of player is "setleggings":
+                set {_message} to message
+                if {item::%{_message}%} is set:
+                    set yaml value "%{_mob}%.equipment.leggings" of "mobs" to {_message}
+                    save yaml "mobs"
+                    editmobs(player, {_mob})
+                    delete metadata tag "gui.editmobs.chat" of player
+                else:
+                    send "&cInvalid item id."
+
+            else if metadata tag "gui.editmobs.chat" of player is "setboots":
+                set {_message} to message
+                if {item::%{_message}%} is set:
+                    set yaml value "%{_mob}%.equipment.boots" of "mobs" to {_message}
+                    save yaml "mobs"
+                    editmobs(player, {_mob})
+                    delete metadata tag "gui.editmobs.chat" of player
+                else:
+                    send "&cInvalid item id."
+
+            else if metadata tag "gui.editmobs.chat" of player is "setmainhand":
+                set {_message} to message
+                if {item::%{_message}%} is set:
+                    set yaml value "%{_mob}%.equipment.mainhand" of "mobs" to {_message}
+                    save yaml "mobs"
+                    editmobs(player, {_mob})
+                    delete metadata tag "gui.editmobs.chat" of player
+                else:
+                    send "&cInvalid item id."
+
+            else if metadata tag "gui.editmobs.chat" of player is "setoffhand":
+                set {_message} to message
+                if {item::%{_message}%} is set:
+                    set yaml value "%{_mob}%.equipment.offhand" of "mobs" to {_message}
+                    save yaml "mobs"
+                    editmobs(player, {_mob})
+                    delete metadata tag "gui.editmobs.chat" of player
+                else:
+                    send "&cInvalid item id."
+
+            else if metadata tag "gui.editmobs.chat" of player is "seteggitem":
+                set {_message} to message
+                if {_message} parsed as an itemtype is set:
+                    set yaml value "%{_mob}%.egg_item" of "mobs" to {_message}
+                    save yaml "mobs"
+                    editmobs(player, {_mob})
+                    delete metadata tag "gui.editmobs.chat" of player
+                else:
+                    send "&cThat isn't an entity that exisits."
+
+            else if metadata tag "gui.editmobs.chat" of player is "setname":
+                set {_message} to message
+                set yaml value "%{_mob}%.name" of "mobs" to {_message}
+                save yaml "mobs"
+                editmobs(player, {_mob})
+                delete metadata tag "gui.editmobs.chat" of player
+
+            else if metadata tag "gui.editmobs.chat" of player is "setentity":
+                set {_message} to message
+                if {_message} parsed as an entity type is set:
+                    set yaml value "%{_mob}%.entity" of "mobs" to {_message}
+                    save yaml "mobs"
+                    editmobs(player, {_mob})
+                    delete metadata tag "gui.editmobs.chat" of player
+                else:
+                    send "&cThat isn't an entity that exisits."
+
+
+
+function mob(mobid: string, context: string = "spawn", other: object = "none") :: object:
+    if {_context} is "spawn_egg":
+        set {_name} to join "&f", formatstring({_mobid}) and " Spawn Egg" 
+        set {_eggitem} to yaml value "%{_mobid}%.egg_item" of "mobs" parsed as an itemtype
+        set {_egg} to {_eggitem} named {_name}
+        set string tag "custom_mob_id" of nbt of {_egg} to {_mobid}
+        return {_egg} 
+
+    else if {_context} is "spawn":
+        set {_loc} to {_other}
+        set {_entity} to yaml value "%{_mobid}%.entity" of "mobs" parsed as entity type
+        set {_name} to yaml value "%{_mobid}%.name" of "mobs"
+        
+    
+        set {_health} to yaml value "%{_mobid}%.stats.health" of "mobs"
+        set {_speed} to yaml value "%{_mobid}%.stats.speed" of "mobs"
+        set {_damage} to yaml value "%{_mobid}%.stats.damage" of "mobs"
+    
+        set {_offhand} to yaml value "%{_mobid}%.equipment.offhand" of "mobs"
+        set {_mainhand} to yaml value "%{_mobid}%.equipment.mainhand" of "mobs"
+        set {_helmet} to yaml value "%{_mobid}%.equipment.helmet" of "mobs"
+        set {_chestplate} to yaml value "%{_mobid}%.equipment.chestplate" of "mobs"
+        set {_leggings} to yaml value "%{_mobid}%.equipment.leggings" of "mobs"
+        set {_boots} to yaml value "%{_mobid}%.equipment.boots" of "mobs"
+
+        spawn 1 of {_entity} at {_loc}:
+            set max health of event-entity to {_health} / 2
+            set health of event-entity to {_health} / 2
+            set event-entity's movement speed attribute to {_speed} / 10
+            set display name of event-entity to "%{_name}% &7[&c%health of event-entity * 2%&7/%max health of event-entity * 2%&7]"
+
+            if {_offhand} is "none":
+                set event-entity's offhand tool to air 
+            else:
+                set event-entity's offhand tool to {item::%{_offhand}%}
+
+            if {_mainhand} is "none":
+                set event-entity's tool to air 
+            else:
+                set event-entity's tool to {item::%{_mainhand}%}
+
+            if {_helmet} is "none":
+                set event-entity's helmet to air 
+            else:
+                set event-entity's helmet to {item::%{_helmet}%}
+
+            if {_chestplate} is "none":
+                set event-entity's chestplate to air 
+            else:
+                set event-entity's chestplate  to {item::%{_chestplate}%}
+
+            if {_leggings} is "none":
+                set event-entity's leggings to air 
+            else:
+                set event-entity's leggings to {item::%{_leggings}%}
+
+            if {_boots} is "none":
+                set event-entity's boots to air 
+            else:
+                set event-entity's boots to {item::%{_boots}%}
+
+            set metadata tag "mobid" of event-entity to {_mobid}
+
+
+        return "&fMob with id ""%{_mobid}%"" was spawned at:&b %{_loc}%"
+
+    else if {_context} is "stat":
+        return yaml value "%{_mobid}%.stats.%{_other}%" of "mobs"
+
+
+    else if {_context} is "check":
+        if yaml value {_mobid} of "mobs" is set:
+            return true 
+
+        else:
+            return false
+
+on damage:
+    if metadata tag "mobid" of victim is set:
+        set {_mobid} to metadata tag "mobid" of victim
+        set {_name} to yaml value "%{_mobid}%.name" of "mobs"
+        set display name of victim to "%{_name}% &7[&c%health of victim * 2 - the damage * 2%&7/%max health of victim * 2%&7]"
+
+    else if metadata tag "mobid" of attacker is set:
+        set {_mobid} to metadata tag "mobid" of attacker
+        set the damage to (mob({_mobid}, "stat", "damage") / 2)
+
+on death:
+    if metadata tag "mobid" of victim is set:
+        set {_mobid} to metadata tag "mobid" of victim
+        cancel drops
+        if yaml value "%{_mobid}%.drops" of "mobs" is set: 
+            if attacker is a player:
+                set {_looting} to (level of looting of attacker's tool / 2) + 1
+            else:
+                set {_looting} to 1
+
+            loop yaml nodes with keys "%{_mobid}%.drops" of "mobs":
+                set {_chance} to yaml value "%{_mobid}%.drops.%loop-value%.chance" of "mobs"
+
+                if yaml value "%{_mobid}%.drops.%loop-value%.looting" of "mobs" is true:
+                    set {_chance} to {_chance} * {_looting}
+                    if {_chance} is greater than 100:
+                        set {_chance} to 100
+                
+                chance of {_chance}%:
+                    if yaml value "%{_mobid}%.drops.%loop-value%.type" of "mobs" is "item":
+                        set {_item} to yaml value "%{_mobid}%.drops.%loop-value%.item" of "mobs" parsed as an itemtype 
+                        set {_countmin} to yaml value "%{_mobid}%.drops.%loop-value%.countmin" of "mobs"
+                        set {_countmax} to yaml value "%{_mobid}%.drops.%loop-value%.countmax" of "mobs"
+                        drop (random integer between {_countmin} and {_countmax}) of {_item} at victim
+
+                    else if yaml value "%{_mobid}%.drops.%loop-value%.type" of "mobs" is "id":
+                        set {_id} to yaml value "%{_mobid}%.drops.%loop-value%.id" of "mobs"
+                        set {_item} to {item::%{_id}%}
+                        set {_countmin} to yaml value "%{_mobid}%.drops.%loop-value%.countmin" of "mobs"
+                        set {_countmax} to yaml value "%{_mobid}%.drops.%loop-value%.countmax" of "mobs"
+                        drop (random integer between {_countmin} and {_countmax}) of {_item} at victim
+
+                    else if yaml value "%{_mobid}%.drops.%loop-value%.type" of "mobs" is "xp":
+                        set {_countmin} to yaml value "%{_mobid}%.drops.%loop-value%.countmin" of "mobs"
+                        set {_countmax} to yaml value "%{_mobid}%.drops.%loop-value%.countmax" of "mobs"
+                        spawn (random integer between {_countmin} and {_countmax}) of xp at victim
+
+on right click:
+    if string tag "custom_mob_id" of nbt of player's tool is set:
+        if string tag "custom_mob_id" of nbt of player's tool is not "":
+            cancel event 
+            if clicked block is set:
+                set {_mob_id} to string tag "custom_mob_id" of nbt of player's tool
+                if mob({_mob_id}, "check") is true:
+                    if player's gamemode is survival or adventure:
+                        remove 1 of player's tool from player's tool
+
+                    set {_ray} to ray trace from player
+                    set {_block} to hit block of {_ray}
+                    set {_face} to hit blockface of {_ray}
+                    if "%{_face}%" is "north":
+                        set {_loc} to location 1 meter north of clicked block
+
+                    else if "%{_face}%" is "east":
+                        set {_loc} to location 1 meter east of clicked block
+
+                    else if "%{_face}%" is "south":
+                        set {_loc} to location 1 meter south of clicked block
+
+                    else if "%{_face}%" is "west":
+                        set {_loc} to location 1 meter west of clicked block
+
+                    else if "%{_face}%" is "up":
+                        set {_loc} to location 0.5 meter above clicked block
+
+                    else if "%{_face}%" is "down":
+                        set {_loc} to location 1 meter below clicked block
+
+                    mob({_mob_id}, "spawn", {_loc})
+
+                else:
+                    set player's tool to air 
+                    send "&cYou were holding the spawn egg of a mob that doesn't exisit. It has been removed." to player
+        else:
+            delete string tag "custom_mob_id" of nbt of player's tool
+    else:
+        delete string tag "custom_mob_id" of nbt of player's tool
+
+on inventory click:
+    if player's current inventory is metadata tag "gui.mobdrops" of player:
+        cancel event 
+        if index of event-slot is 45:
+            set {_page} to metadata tag "prevpage" of player
+            dropsgui(player, "%{_page}%")
+
+function mobdrops(p: player, mobid: string):
+    if yaml value "%{_mobid}%.drops" of "mobs" is set:
+        set {_name} to yaml value "%{_mobid}%.name" of "mobs"
+        set metadata tag "gui.mobdrops" of {_p} to chest inventory with 6 rows named "%{_name}% &7> &fDrops"
+        set {_validslots::*} to 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42 and 43 
+
+        loop 54 times:
+            if {_validslots::*} does not contain (loop-value -1):
+                set slot (loop-value -1) of metadata tag "gui.mobdrops" of {_p} to grey stained glass pane named "&f"
+            else:
+                set slot (loop-value -1) of metadata tag "gui.mobdrops" of {_p} to white stained glass pane named "&f"
+
+        
+        set {_v} to 0
+
+        loop yaml nodes with keys "%{_mobid}%.drops" of "mobs":
+            while {_validslots::*} does not contain {_v}:
+                add 1 to {_v}
+                if {_v} is greater than 53:
+                    stop loop
+
+            set {_type} to yaml value "%{_mobid}%.drops.%loop-value%.type" of "mobs"
+            set {_countmin} to yaml value "%{_mobid}%.drops.%loop-value%.countmin" of "mobs"
+            set {_countmax} to yaml value "%{_mobid}%.drops.%loop-value%.countmax" of "mobs"
+            set {_chance} to yaml value "%{_mobid}%.drops.%loop-value%.chance" of "mobs"
+            set {_looting} to yaml value "%{_mobid}%.drops.%loop-value%.looting" of "mobs"
+
+            if {_countmin} = {_countmax}:
+                set {_amount} to "%{_countmax}%"
+            else:
+                set {_amount} to "%{_countmin}%-%{_countmax}%"
+
+            if yaml value "%{_mobid}%.drops.%loop-value%.type" of "mobs" is "item":
+                set {_item} to yaml value "%{_mobid}%.drops.%loop-value%.item" of "mobs" parsed as an itemtype
+                set slot {_v} of metadata tag "gui.mobdrops" of {_p} to {_item} with lore "&fChance: &e%{_chance}%%%", "&fAmount: &b%{_amount}%" and "&fLooting Affects: &c%{_looting}%"
+    
+            else if yaml value "%{_mobid}%.drops.%loop-value%.type" of "mobs" is "id":
+                set {_id} to yaml value "%{_mobid}%.drops.%loop-value%.id" of "mobs" 
+                set slot {_v} of metadata tag "gui.mobdrops" of {_p} to {item::%{_id}%} with lore "&fChance: &e%{_chance}%%%", "&fAmount: &b%{_amount}%" and "&fLooting Affects: &c%{_looting}%"
+
+
+            else if yaml value "%{_mobid}%.drops.%loop-value%.type" of "mobs" is "xp":
+                set slot {_v} of metadata tag "gui.mobdrops" of {_p} to experience bottle named "&eXp Orbs" with lore "&fChance: &e%{_chance}%%%", "&fAmount: &b%{_amount}%" and "&fLooting Affects: &c%{_looting}%"
+
+            add 1 to {_v}
+
+            set slot 45 of metadata tag "gui.mobdrops" of {_p} to arrow named "&bBack" 
+
+    open metadata tag "gui.mobdrops" of {_p} to {_p}

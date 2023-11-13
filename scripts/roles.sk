@@ -1,0 +1,211 @@
+function roleSelector(p: player, first: boolean):
+    set metadata tag "gui.roleselector.first" of {_p} to {_first}
+    set metadata tag "gui.roleselector" of {_p} to chest inventory with 3 rows named "&bSelect a role."
+    loop 54 times:
+        set slot loop-value - 1 of metadata tag "gui.roleselector" of {_p} to black stained glass pane named ""
+
+    set {_farmericon} to golden hoe named "&eFarmer 🔱" with lore "", "&bStarter Kit:", "&f   Iron Hoe &7x1", "&f   Wheat Seeds &7x8", "&f   Stone Pickaxe &7x1", "&f   Bread &7x16", "", "&bPerks:", "&f   More drops from wheat, carrot, potatoes, beetroots and nether wart when farming with a hoe.", "&f   Fully grown crops replant when farmed with a hoe.", "&f   Crouching sometimes bonemeals plants. (Works on trees!)", "" and "&eLeft Click to select!"
+    set int tag "CustomModelData" of nbt of {_farmericon} to 1
+    set slot 10 of metadata tag "gui.roleselector" of {_p} to {_farmericon}
+
+    set {_minericon} to iron pickaxe named "&fMiner ⛏" with lore "", "&bStarter Kit:", "&f   Iron Pickaxe &7x1", "&f   Torches &7x16", "&f   Bread &7x16", "", "&bPerks:", "&f   Haste 1 when mining.", "&f   Shovel & Pickaxe durability has a chance of not lowering.", "&f   Mining while crouched doesn't spawn mobs.", "" and "&eLeft Click to select!"
+    set int tag "CustomModelData" of nbt of {_minericon} to 1
+    set slot 12 of metadata tag "gui.roleselector" of {_p} to {_minericon}
+
+    set {_warrioricon} to diamond sword named "&cWarrior 🗡" with lore "", "&bStarter Kit:", "&f   Iron Sword &7x1", "&f   Shield &7x1", "&f   Stone Pickaxe &7x1", "&f   Bread &7x16", "", "&bPerks:", "&f   Your sword hits deal more damage to hostile mobs.", "&f   Hostile mobs can drop iron, gold and diamonds.", "&f   Take less damage while crouched.", "" and "&eLeft Click to select!"
+    set int tag "CustomModelData" of nbt of {_warrioricon} to 1
+    set slot 14 of metadata tag "gui.roleselector" of {_p} to {_warrioricon}
+    
+    set {_fishermanicon} to fishing rod named "&bFisherman 🎣" with lore "", "&bStarter Kit:", "&f   Fishing Rod &7x1", "&f   Stone Pickaxe &7x1", "&f   Cooked Cod &7x16", "", "&bPerks:", "&f   Fishing wait time is much shorter.", "&f   Fishing rods have a high chance of keeping their durability.", "&f   Right-Clicking with a fishing rod while crouched grants you the luck effect!", "" and "&eLeft Click to select!"
+    set int tag "CustomModelData" of nbt of {_fishermanicon} to 1
+    set slot 16 of metadata tag "gui.roleselector" of {_p} to {_fishermanicon}
+
+
+    open metadata tag "gui.roleselector" of {_p} to {_p}
+
+
+on inventory click:
+    if player's current inventory is metadata tag "gui.roleselector" of player:
+        cancel event 
+        set {_first} to metadata tag "gui.roleselector.first" of player
+        set {_first} to "%{_first}%" parsed as a boolean
+        if name of event-slot is "&eFarmer 🔱":
+            setrole(player, "farmer", {_first})
+            close player's inventory
+            send "%player's displayname% &bchose &eFarmer 🔱" to all players
+
+        if name of event-slot is "&fMiner ⛏":
+            setrole(player, "miner", {_first})
+            close player's inventory
+            send "%player's displayname% &bchose &fMiner ⛏" to all players
+
+        if name of event-slot is "&cWarrior 🗡":
+            setrole(player, "warrior", {_first})
+            close player's inventory
+            send "%player's displayname% &bchose &cWarrior 🗡" to all players
+
+        if name of event-slot is "&bFisherman 🎣":
+            setrole(player, "fisherman", {_first})
+            close player's inventory
+            send "%player's displayname% &bchose &bFisherman 🎣" to all players
+
+command /selectrole [<offlineplayer>]:
+    permission: op
+    trigger:
+        set {_p} to player
+        set {_p} to arg-1 if arg-1 is set 
+        if {role::%{_p}'s uuid%} is set:
+            roleSelector({_p}, false)
+        else:
+            roleSelector({_p}, true)
+
+function setrole(p: player, role: string, first: boolean):
+    if {_role} is "farmer", "miner", "fisherman" or "warrior":
+        set {role::%{_p}'s uuid%} to {_role}
+        send "&aYour role was set to: &b%{_role}%" to {_p}
+        delete {roleselected::%{_p}'s uuid%}
+
+        if {_first} is true:
+            if {_role} is "Farmer":
+                give {_p} 1 of iron hoe named "&eFarmer's Hoe"
+                give {_p} 16 of wheat seeds 
+                give {_p} 1 of stone pickaxe named "&7Starter Pickaxe"
+                give {_p} 16 of bread
+
+            if {_role} is "Miner":
+                give {_p} 1 of iron pickaxe named "&fMiner's Pickaxe"
+                give {_p} 16 of torch
+                give {_p} 16 of bread
+
+            if {_role} is "Warrior":
+                give {_p} 1 of iron sword named "&cWarrior's Sword"
+                give {_p} 1 of shield named "&cWarrior's Shield"
+                give {_p} 1 of stone pickaxe named "&7Starter Pickaxe"
+                give {_p} 16 of bread
+
+            if {_role} is "Fisherman":
+                give {_p} 1 of fishing rod named "&bFisherman's Rod"
+                give {_p} 1 of stone pickaxe named "&7Starter Pickaxe"
+                give {_p} 16 of cooked cod
+
+
+            execute {_p} command "skript:help"
+on damage:
+    if attacker is a player:
+        if {role::%attacker's uuid%} is "warrior":
+
+            if victim is a blaze, creeper, drowned, elder guardian, endermite, evoker, ghast, guardian, hoglin, husk, magma cube, phantom, piglin brute, pillager, ravager, shulker, silverfish, skeleton, slime, stray, vex, vindicator, warden, witch, wither skeleton, zoglin, zombie, zombie villager or piglin:
+                if attacker's tool is a sword:
+                    add (damage * 0.2) to the damage 
+
+
+    if victim is a player:
+        if {role::%victim's uuid%} is "warrior":
+            if victim is sneaking:
+                remove (damage * 0.1) from the damage
+            
+            
+on death:
+    if attacker is a player:
+        if {role::%attacker's uuid%} is "warrior":
+
+            if victim is a blaze, creeper, drowned, elder guardian, endermite, evoker, ghast, guardian, hoglin, husk, magma cube, phantom, piglin brute, pillager, ravager, shulker, silverfish, skeleton, slime, stray, vex, vindicator, warden, witch, wither skeleton, zoglin, zombie, zombie villager or piglin:
+                chance of 1%:
+                    drop 1 of iron ingot at victim 
+
+                chance of 0.5%:
+                    drop 1 of gold ingot at victim
+
+                chance of 0.01%:
+                    drop 1 of diamond at victim
+
+
+
+
+on item damage:
+    if event-item is a pickaxe or shovel:
+        if {role::%player's uuid%} is "miner":
+            chance of 20%:
+                cancel event
+
+    if event-item is a fishing rod:
+        if {role::%player's uuid%} is "fisherman":
+            chance of 95%:
+                cancel event
+
+
+on break of wheat plant, carrot plant, beetroot plant, potato plant or nether wart plant:
+    if {role::%player's uuid%} is "farmer":
+        set {_crop} to "%type of event-block%"
+        send {_crop}
+        if {_crop} contains "ripe":
+            if player's tool is a hoe:
+                if {_crop} contains "wheat":
+                    set event-block to wheat plant
+                    drop 1 of wheat item at event-block
+                if {_crop} contains "potato":
+                    set event-block to potato plant
+                    drop 2 of potato item at event-block
+                if {_crop} contains "carrot":
+                    set event-block to carrot plant
+                    drop 2 of carrot item at event-block
+                if {_crop} contains "beetroot":
+                    set event-block to beetroot plant
+                    drop 1 of beetroot item at event-block
+
+                if {_crop} contains "nether wart":
+                    set event-block to nether wart plant
+                    drop 2 of nether wart item at event-block
+
+on right click:
+    if {role::%player's uuid%} is "fisherman":
+        if player's tool is a fishing rod:
+            if player is sneaking:
+                apply luck 1 without particles to player for 1000 seconds replacing existing effect
+        else:
+            remove luck from player
+   
+on fish:
+    if fish event state = fishing:
+        if {role::%player's uuid%} is "fisherman":
+            if player's tool is a fishing rod:
+                set {_lure} to "%the level of lure of player's tool ? 0%" parsed as an integer
+            else if player's offhand tool is a fishing rod:
+                set {_lure} to "%the level of lure of player's offhand tool ? 0%" parsed as an integer
+
+            set {_waitmax} to 25 - ({_lure} * 5)
+            set {_waitmax} to 1 if {_waitmax} = 0
+            send {_waitmax}
+            set min wait time of fish hook to 1 seconds
+            set max wait time of fish hook to "%{_waitmax}% seconds" parsed as a timespan
+
+                    
+on sneak toggle:
+    if player is sneaking:
+        if {role::%player's uuid%} is "farmer":
+            loop all blocks in radius 3 of player:
+                chance of 7.5%:
+                    apply bonemeal effect to loop-block
+
+    
+on right click with eye of ender:
+    if name of player's tool is "&6Role Swapper &7(Right Click)":
+        cancel event
+        remove 1 of player's tool from player's tool 
+        set {roleselected::%player's uuid%} to false
+        while {roleselected::%player's uuid%} is false:
+            roleSelector(player, false)
+            wait 1 second
+
+
+command /giveroleswapper [<offlineplayer>]:
+    permission: op
+    trigger:
+        set {_p} to player
+        set {_p} to arg-1 if arg-1 is set 
+        give {_p} 1 of {item::role_swapper}
+
+
+command /checkrole <offlineplayer>:
+    trigger:
+        send "%{role::%arg-1's uuid%}%" to player

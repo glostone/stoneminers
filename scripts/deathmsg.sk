@@ -1,0 +1,68 @@
+on death of a player:
+    if attacker is set:
+        if name of attacker is set:
+            set {_name} to name of attacker 
+        else:
+            set {_name} to "%attacker%"
+
+        if projectile is set:
+            set death message to "&c%victim's displayname% &7was shot by &c%{_name}%"
+        if attacker's weapon is a sword, an axe or a pickaxe:
+            set death message to "&c%{_name}% &7stabbed &c%victim's displayname%"
+        else:
+            set death message to "&c%{_name}% &7killed &c%victim's displayname%"
+
+
+    else if damage cause is suffocation or drowning:
+        set death message to "&c%victim's displayname% &7ran out of air to breathe."
+
+    else if damage cause is fire, magma, burning, melting, dryout or lava:
+        set death message to "&c%victim's displayname% &7was roasted alive."
+
+    else if damage cause is block explosion or entity explosion:
+        set death message to "&c%victim's displayname% &7was blown up."
+
+    else if damage cause is void:
+        set death message to "&c%victim's displayname% &7fell into the void."
+
+    else if damage cause is lightning:
+        set death message to "&c%victim's displayname% &7was struck by lightning."
+
+    else if damage cause is suicide:
+        set death message to "&c%victim's displayname% &7ended their own life."
+
+    else if damage cause is starvation:
+        set death message to "&c%victim's displayname% &7forgot to eat."
+
+    else if damage cause is poison:
+        set death message to "&c%victim's displayname% &7was poisoned."
+
+    else if damage cause is potion:
+        set death message to "&c%victim's displayname% &7was splashed with spicy water."
+
+    else if damage cause is wither effect:
+        set death message to "&c%victim's displayname% &7withered away."
+
+    else if damage cause is falling block or cramming:
+        set death message to "&c%victim's displayname% &7was squashed."
+
+    else if damage cause is fall:
+        set death message to "&c%victim's displayname% &7fell into a hole."
+
+    else if damage cause is thorns:
+        set death message to "&c%victim's displayname% &7was pricked to death."
+
+    else if damage cause is dragon's breath:
+        set death message to "&c%victim's displayname% &7smelled the dragon's breath."
+
+    else if damage cause is hitting wall while flying:
+        set death message to "&c%victim's displayname% &7flew into a wall."
+
+    else if damage cause is freeze:
+        set death message to "&c%victim's displayname% &7froze to death."
+
+    else if damage cause is sonic boom:
+        set death message to "&c%victim's displayname% &7found out what happens when you anger the warden."
+
+    else:
+        set death message to "&c%victim's displayname% &7died."

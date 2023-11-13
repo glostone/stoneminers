@@ -1,0 +1,40 @@
+on entity transform:
+    if event-entity is a piglin or hoglin:
+        if name of event-entity is set:
+            cancel event
+
+
+on target:
+    if "%region at target%" contains "spawn":
+        cancel event
+
+on right click on composter:
+    world of player is "world"
+    if "%type of event-block%" contains "filled" or "level 8":
+        player is not sneaking
+        chance of 25%:
+            drop 1 of dirt at event-block
+    else:
+        if player's tool is rotten flesh or poisonous potato:
+            remove 1 of player's tool from player's tool
+            chance of 30%:
+                play sound "block.composter.fill_success" with volume 1 and pitch 1 at event-block for all players
+                set {_level} to block data tag "level" of event-block 
+                add 1 to {_level} 
+                set block data tag "level" of event-block to {_level}
+            else:
+                play sound "block.composter.fill" with volume 1 and pitch 1 at event-block for all players
+
+on right click on dirt:
+    world of player is "world"
+    if player's tool is bonemeal:
+        cancel event
+        remove 1 of player's tool from player's tool 
+        set event-block to grass block
+
+on entity target:
+    if target is a player:
+        if event-entity's name is "&2Undead Miner":
+            if target's helmet is skeleton skull named "&2Undead Miner's Skull":
+                cancel event
+

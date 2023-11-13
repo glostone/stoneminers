@@ -1,0 +1,28 @@
+on portal create:
+    if event-world is not "world":
+        cancel event
+
+on place:
+    if y coordinate of event-block is greater than 318:
+        cancel event
+
+on right click on end portal frame:
+    cancel event
+
+on portal enter:
+    set {_tp} to random integer between 1 and 4
+    if {_tp} is 1:
+        send 1
+        teleport event-entity to location 21, 12, 21 in "world_nether"
+
+    if {_tp} is 2:
+        send 2
+        teleport event-entity to location -21, 12, 21 in "world_nether"
+
+    if {_tp} is 3:
+        send 3
+        teleport event-entity to location 21, 12, -21 in "world_nether"
+
+    if {_tp} is 4:
+        send 4
+        teleport event-entity to location -21, 12, -21 in "world_nether"

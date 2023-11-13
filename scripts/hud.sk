@@ -1,0 +1,344 @@
+on skript start:
+    set {uptime} to now
+    send "<red>Uptime set" to console
+
+on load:
+    set {icons::*} to stone named "<colour>● &f| default"
+    add lime wool named "<colour>$ &f| dollar" to {icons::*}
+    add glowstone named "<colour>★ &f| star" to {icons::*}
+    add red dye named "<colour>❤ &f| heart" to {icons::*}
+    add yellow stained glass named "<colour>⚡ &f| bolt" to {icons::*}
+    add tuff named "<colour>✎ &f| pencil" to {icons::*}
+    add skeleton skull named "<colour>☠ &f| skull" to {icons::*}
+    add end stone named "<colour>☽ &f| moon" to {icons::*}
+    add yellow concrete named "<colour>☀ &f| sun" to {icons::*} 
+    add blaze powder named "<colour>🔥 &f| fire" to {icons::*}
+    add snowball named "<colour>❄ &f| snow" to {icons::*}
+    add snow block named "<colour>⛄ &f| snowman" to {icons::*}
+    add powder snow bucket named "<colour>☁ &f| cloud" to {icons::*}
+    set {colours::*} to "grey", "white", "blue", "cyan", "aqua", "green", "lime", "yellow", "orange", "red", "purple" and "pink"
+    set {nicknameallowed::*} to "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "_", "-" and " "
+
+
+on join:
+    while player is online:
+        if {role::%player's uuid%} is "farmer":
+            set {_role} to "&e🔱"
+
+        else if {role::%player's uuid%} is "miner":
+            set {_role} to "&f⛏"
+
+        else if {role::%player's uuid%} is "warrior":
+            set {_role} to "&c🗡"
+
+        else if {role::%player's uuid%} is "fisherman":
+            set {_role} to "&b🎣"
+        
+        else:
+            set {_role} to "&7●"
+        set {namecolour::%player's uuid%} to "7" if {namecolour::%player's uuid%} is not set
+        set {icon::%player's uuid%} to "●" if {icon::%player's uuid%} is not set
+
+        if {nickname::%player's uuid%} is not set:
+            set {_name} to player 
+        else:
+            set {_name} to "&o%{nickname::%player's uuid%}%"
+
+        if {namecolour::%player's uuid%} contains "##":
+            set player's displayname to coloured formatted "%{_role}% <%{namecolour::%player's uuid%}%>%{icon::%player's uuid%}% %{_name}%"
+        else:
+            set player's displayname to coloured formatted "%{_role}% &%{namecolour::%player's uuid%}%%{icon::%player's uuid%}% %{_name}%"
+      
+        if {muted::%player's uuid%} is set:
+            if time since {muted::%player's uuid%} is greater than or equal to {muted.duration::%player's uuid%}:
+                delete {muted.duration::%player's uuid%}
+                delete {muted::%player's uuid%}
+
+        set player's tablist name to coloured player's displayname
+        set player's tablist header to "&bStoneMiners%nl%&f &f &f &f &f &f &f &f &f &f &f &f&bMine stone, Forever.&f &f &f &f &f &f &f &f &f &f &f &f%nl%%nl%&aPlayers: &f%amount of all players%&7/%max players%%nl%"
+        set player's tablist footer to "%nl%&dTotal Joins: &f%size of {joins::*}%%nl%%nl%&a/Discord"
+        set title of player's scoreboard to "&bStoneMiners"
+        set line 6 of player's scoreboard to "&e"
+        set line 5 of player's scoreboard to "&fUptime: &a%formattimespan(time since {uptime})%"
+        set line 4 of player's scoreboard to "&fSpawn Reset: &c%formattimespan(difference between 5 hours and time since {lastmapreset})%"
+        set line 3 of player's scoreboard to "&fWorld Time: &d%time in player's world%"
+        set line 2 of player's scoreboard to "&f"
+        set line 1 of player's scoreboard to "&eplay.stoneminers.xyz"
+        wait 1 second
+
+
+command /nickname [<text>]:
+    aliases: /nick
+    permission: stoneminers.nickname 
+    permission message: &cPurchase donator rank to use this command! 
+    trigger:
+        if arg-1 is not set:
+            delete {nickname::%player's uuid%}
+            send "&aYour nickname was cleared." to player
+        else:
+            set {_nick} to arg-1 
+            if length of {_nick} is greater than 2:
+                if length of {_nick} is less than 17:
+                    set {_v::*} to {_nick} split at ""
+                    set {_v} to 0
+                    loop {_v::*}:
+                        add 1 to {_v}
+                        if {_v} is not greater than length of {_nick}:
+                            if {nicknameallowed::*} does not contain loop-value:
+                                send loop-value
+                                send "&cInvalid character in nickname, Please only use a-z, 0-9, _ and -"
+                                stop
+                        
+
+                    set {nickname::%player's uuid%} to {_nick}
+                    send formatted "&bYour nickname was set to: &%{namecolour::%player's uuid%}%&o%{nickname::%player's uuid%}%"
+
+                else:
+                    send "&cYour nickname must be between 3 and 16 characters!"
+            else:
+                send "&cYour nickname must be between 3 and 16 characters!"
+
+command /uptime:
+    trigger:
+        send "&fFull Uptime: &b%time since {uptime}%"
+
+command /scoreboard:
+    trigger:
+        toggle player's scoreboard
+
+on chat:
+    if message contains "nigger", "n i g g e r", "nigga", "n i g g  a", "faggot", "f a g g o t", "retard", "r e t a r d", "retarded" or "r e t a r d e d":
+        cancel event 
+    if {muted::%player's uuid%} is set:
+        cancel event 
+        send "&cYou are muted for %difference between (time since {muted::%player's uuid%}) and {muteddur::%player's uuid%}%"
+    else:
+        if player has permission "stoneminers.chat.format":
+            set {_msg} to coloured formatted message 
+        else:
+            set {_msg} to uncoloured unformatted  message 
+
+        set {chatcolour::%player's uuid%} to "7" if {chatcolour::%player's uuid%} is not set
+        if {chatcolour::%player's uuid%} is "rainbow":
+            set {_msg} to rainbow(": %{_msg}%")
+            set chat format to formatted coloured "%player's displayname%%{_msg}%"
+        else:
+            if {chatcolour::%player's uuid%} contains "##":
+                set chat format to formatted coloured "%player's displayname%<%{chatcolour::%player's uuid%}%>: %{_msg}%"
+            else:
+                set chat format to formatted coloured "%player's displayname%&%{chatcolour::%player's uuid%}%: %{_msg}%"
+
+command /chatcolour:
+    trigger:
+        set metadata tag "gui.setchatcolour" of player to chest inventory with 4 rows named "&bChoose a chat colour!"
+        
+        loop 54 times:
+            set slot loop-value -1 of metadata tag "gui.setchatcolour" of player to gray stained glass pane named "&b"
+
+            
+        set {_validslots::*} to 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33 and 34
+
+        set {_v} to 10
+
+        loop {colours::*}:
+
+            while {_validslots::*} does not contain {_v}:
+                add 1 to {_v}
+                if {_v} is greater than 54:
+                    stop 2 loops
+
+            set {_colourcode} to colourtoformat(loop-value)
+            if loop-value is "aqua":
+                set {_i} to "light blue concrete" parsed as an itemtype
+            else:
+                set {_i} to "%loop-value% concrete" parsed as an itemtype
+
+            if player has permission "stoneminers.chatcolour.%loop-value%" or "stoneminers.chatcolour.*": 
+                set slot {_v} of metadata tag "gui.setchatcolour" of player to {_i} named coloured "&%{_colourcode}%%loop-value%" with lore "&aOwned"
+                    
+            else:
+                set slot {_v} of metadata tag "gui.setchatcolour" of player to {_i} named coloured "&%{_colourcode}%%loop-value%" with lore "&cUnowned"
+                    
+            add 1 to {_v}
+
+        open metadata tag "gui.setchatcolour" of player to player
+
+command /namecolour:
+    trigger:
+        set metadata tag "gui.setnamecolour" of player to chest inventory with 4 rows named "&bChoose a name colour!"
+        
+        loop 54 times:
+            set slot loop-value -1 of metadata tag "gui.setnamecolour" of player to gray stained glass pane named "&b"
+
+            
+        set {_validslots::*} to 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33 and 34
+
+        set {_v} to 10
+
+        loop {colours::*}:
+
+            while {_validslots::*} does not contain {_v}:
+                add 1 to {_v}
+                if {_v} is greater than 54:
+                    stop 2 loops
+
+            set {_colourcode} to colourtoformat(loop-value)
+            if loop-value is "aqua":
+                set {_i} to "light blue wool" parsed as an itemtype
+            else:
+                set {_i} to "%loop-value% wool" parsed as an itemtype
+
+            if player has permission "stoneminers.namecolour.%loop-value%" or "stoneminers.namecolour.*": 
+                set slot {_v} of metadata tag "gui.setnamecolour" of player to {_i} named coloured "&%{_colourcode}%%loop-value%" with lore "&aOwned"
+                    
+            else:
+                set slot {_v} of metadata tag "gui.setnamecolour" of player to {_i} named coloured "&%{_colourcode}%%loop-value%" with lore "&cUnowned"
+            add 1 to {_v}
+
+        open metadata tag "gui.setnamecolour" of player to player
+
+command /nameicon:
+    trigger:
+        set metadata tag "gui.seticon" of player to chest inventory with 5 rows named "&bChoose an icon!"
+        
+        loop 54 times:
+            set slot loop-value -1 of metadata tag "gui.seticon" of player to gray stained glass pane named "&b"
+
+        
+        set {_validslots::*} to 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33 and 34
+
+        set {_v} to 10
+
+        loop {icons::*}:
+
+            while {_validslots::*} does not contain {_v}:
+                add 1 to {_v}
+                if {_v} is greater than 54:
+                    stop 2 loops
+
+            set {_name} to name of loop-value
+            replace all "<colour>" in {_name} with "&%{namecolour::%player's uuid%}%"
+            set {_id::*} to uncoloured name of loop-value split at "|"
+            replace all " " with "" in {_id::2} 
+
+
+            if player has permission "stoneminers.icon.%{_id::2}%" or "stoneminers.icon.*": 
+                set slot {_v} of metadata tag "gui.seticon" of player to loop-value named coloured {_name} with lore "&aOwned"
+
+            else:
+                set slot {_v} of metadata tag "gui.seticon" of player to loop-value named coloured {_name} with lore "&cUnowned, Get it from /buy!"
+            add 1 to {_v}
+
+        open metadata tag "gui.seticon" of player to player
+  
+on inventory click:
+    if player's current inventory is metadata tag "gui.seticon" of player:
+        cancel event 
+        set {_id::*} to uncoloured name of event-slot split at "|"
+        set {_icon} to {_id::1}
+        set {_id} to {_id::2}
+
+        replace all " " with "" in {_icon}
+        replace all " " with "" in {_id}
+        if player has permission "stoneminers.icon.%{_id}%" or "stoneminers.icon.*":
+            set {icon::%player's uuid%} to {_icon}
+            send coloured "&aYour icon was set to: &%{namecolour::%player's uuid%}%%{icon::%player's uuid%}%" to player
+            close player's inventory
+        else:
+            send "&cYou don't have permission for that!" to player
+            close player's inventory
+
+
+    else if player's current inventory is metadata tag "gui.setnamecolour" of player:
+        cancel event 
+        set {_id} to uncoloured name of event-slot
+        if player has permission "stoneminers.namecolour.%{_id}%" or "stoneminers.namecolour.*":
+            set {namecolour::%player's uuid%} to colourtoformat({_id})
+            send coloured "&aYour name colour was set to: &%{namecolour::%player's uuid%}%%{_id}%" to player
+            close player's inventory
+        else:
+            send "&cYou don't have permission for that!" to player
+            close player's inventory
+
+    else if player's current inventory is metadata tag "gui.setchatcolour" of player:
+        cancel event 
+        set {_id} to uncoloured name of event-slot
+        if player has permission "stoneminers.chatcolour.%{_id}%" or "stoneminers.chatcolour.*":
+            set {chatcolour::%player's uuid%} to colourtoformat({_id})
+            send coloured "&aYour chat colour was set to: &%{chatcolour::%player's uuid%}%%{_id}%" to player
+            close player's inventory
+        else:
+            send "&cYou don't have permission for that!" to player
+            close player's inventory
+
+
+command /discord:
+    trigger:
+        send "&aJoin the discord:&b <link:https://discord.gg/mXQrAVWKrp>https://discord.gg/mXQrAVWKrp"
+
+
+function colourtoformat(colour: string) :: string:
+    if {_colour} is "grey":
+        return "7"
+    else if {_colour} is "white":
+        return "f"
+    else if {_colour} is "blue":
+        return "9"
+    else if {_colour} is "cyan":
+        return "3"
+    else if {_colour} is "aqua":
+        return "b"
+    else if {_colour} is "green":
+        return "2"
+    else if {_colour} is "lime":
+        return "a"
+    else if {_colour} is "yellow":
+        return "e"
+    else if {_colour} is "orange":
+        return "6"
+    else if {_colour} is "red":
+        return "c"
+    else if {_colour} is "purple":
+        return "5"
+    else if {_colour} is "pink":
+        return "d"
+
+function rainbow(input: string, wrapAmount: number = -1, lightness: number = 0.5) :: string:
+    set {_delta} to 360 / ({_wrapAmount} if {_wrapAmount} > 0, else length of {_input})
+    set {_lightnessModifier} to (({_lightness}*2)-1) * 255
+    set {_angle} to 90
+    loop length of {_input} times:
+        set {_character} to character at loop-value in {_input}
+        if {_character} or (character at (loop-value - 1) in {_input}) is "§":
+            if "abcdefklmnor0123456789" contains {_character}:
+                set {_format} to (join {_format} and "&%{_character}%") if {_character} is not "r", else ("")
+            continue      
+        loop 3 times:
+            set {_n::%loop-value-2%} to (0.5 * (sin(({_angle} + (loop-number-2*120-120))) + 1)) * 255 + {_lightnessModifier}
+        set {_output} to join {_output}, RGBToHex({_n::*}), {_format} and {_character}
+        remove {_delta} from {_angle}
+    return colored {_output}
+
+function RGBToHex(number: numbers) :: string:
+    loop {_number::*}:
+        set {_r} to join {_r}, (character at (mod((floor(min(max(loop-value, 0), 255) / 16)), 16) + 1) in "0123456789ABCDEF") and (character at ((mod(min(max(loop-value, 0), 255), 16)) + 1) in "0123456789ABCDEF")
+    return colored "<##%{_r}%>"
+
+function formattimespan(timespan: timespan) :: string:
+
+    set {_raw} to ticks of {_timespan} / 20
+
+    set {_seconds} to "%floor(mod({_raw}, 60))%"
+    set {_minutes} to "%floor(mod({_raw}, 60 * 60) / 60)%"
+    set {_hours} to "%floor({_raw} / (60 * 60))%"
+
+    if length of {_seconds} is 1:
+        set {_seconds} to "0%{_seconds}%"
+    if length of {_minutes} is 1:
+        set {_minutes} to "0%{_minutes}%"
+    if length of {_hours} is 1:
+        set {_hours} to "0%{_hours}%"
+
+    set {_formatted} to "%{_hours}%:%{_minutes}%:%{_seconds}%"
+    replace all "00:" with "" in {_formatted}
+    return {_formatted}

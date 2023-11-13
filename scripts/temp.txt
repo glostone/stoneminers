@@ -1,0 +1,70 @@
+    if name of victim is "&2Undead Miner":
+        if attacker is set:
+            set {_looting} to (level of looting of attacker's tool / 2) + 1
+            set {_xp} to random integer between 1 and 5 
+            spawn {_xp} of xp at victim
+        cancel drops 
+        drop random integer between 3 and 7 of bone at victim 
+        chance of 10 * {_looting}%:
+            drop random integer between 5 and 15 of cobblestone at victim 
+
+        chance of 5 * {_looting}%:
+            drop random integer between 1 and 3 of raw iron at victim 
+
+        chance of 5 * {_looting}%:
+            drop random integer between 1 and 3 of raw gold at victim 
+
+        chance of 5 * {_looting}%:
+            drop random integer between 1 and 8 of raw copper at victim 
+
+        chance of 5 * {_looting}%:
+            drop random integer between 1 and 5 of coal at victim 
+
+        chance of 0.1 * {_looting}%:
+            drop 1 of diamond at victim
+
+        
+        chance of 1 * {_looting}%:
+            set {_i} to unbreakable stone pickaxe named "&2Undead Miner's Pickaxe"
+            enchant {_i} with efficiency 3 
+            enchant {_i} with sharpness 2
+            drop 1 of {_i} at victim
+
+        chance of 0.1 * {_looting}%:
+            set {_i} to diamond chestplate named "&2Undead Miner's Chestplate"
+            enchant {_i} with protection 2
+            enchant {_i} with unbreaking 1
+            drop 1 of {_i} at victim
+            if attacker is set:
+                send "&b%attacker% dropped a &2Undead Miner's Chestplate &6%(0.01* {_looting})%%%!" to all players
+    
+        chance of 0.001 * {_looting}%:
+            set {_i} to skeleton skull named "&2Undead Miner's Skull" with lore "" and "&bUndead miners wont target you while you wear this."
+            drop 1 of {_i} at victim
+            if attacker is set:
+                send "&b%attacker% dropped a &2Undead Miner's Skull &6%(0.001* {_looting})%%%!" to all players
+
+
+
+            chance of 60%:
+                spawn 1 of silverfish at event-block:
+                    set event-entity's target to player
+
+            else:
+                spawn 1 of skeleton at event-block:
+                    set event-entity's target to player
+                    set event-entity's name to "&2Undead Miner"
+                    set {_i} to unbreakable stone pickaxe named "&2Undead Miner's Pickaxe"
+                    enchant {_i} with efficiency 3 
+                    enchant {_i} with sharpness 2
+                    set event-entity's weapon to {_i}
+
+                    set {_i} to diamond chestplate named "&2Undead Miner's Chestplate"
+                    enchant {_i} with protection 2
+                    enchant {_i} with unbreaking 1
+                    set event-entity's helmet to air
+                    set event-entity's chestplate to {_i}
+                    set event-entity's leggings to air
+                    set event-entity's boots to air
+
+    

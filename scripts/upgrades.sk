@@ -1,0 +1,117 @@
+on script load:
+    load yaml "plugins/Skript/yaml/roleupgrades.yml" as "roleupgrades"
+    set {_letters} to "Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz"
+    set {_letter-pairs::*} to {_letters} split at " "
+ 
+    loop {_letter-pairs::*}:
+ 
+        set {_pair::*} to loop-value split at ""
+ 
+        set {_uppercase} to {_pair::1}
+        set {_lowercase} to {_pair::2}
+ 
+        set {letters::uppercase::%{_lowercase}%} to {_uppercase}
+        set {letters::lowercase::%{_uppercase}%} to {_lowercase}
+
+
+function formatstring(text: string) :: text:
+ 
+    replace all "_" with " " in {_text}
+    set {_string::*} to {_text} split at " "
+
+    loop {_string::*}:
+
+        set {_char} to the first character of loop-value
+        if {_char} is "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y" or "z":
+            set {_char} to {letters::uppercase::%{_char}%}
+ 
+        set {_remaining} to ""
+        set {_remaining} to the last (length of loop-value - 1) characters of loop-value
+
+        if {_formatted} is not set:
+            set {_formatted} to "%{_char}%%{_remaining}%" 
+        else:
+            set {_formatted} to "%{_formatted}% %{_char}%%{_remaining}%"
+ 
+    replace all "<none>" with "" in {_formatted}
+    return "%{_formatted}%"
+
+
+
+
+
+function roleupgrades(p: player):
+    set {_rolefor} to formatstring("%{role::%{_p}'s uuid%}%")
+    set metadata tag "gui.roleupgrades" of {_p} to chest inventory with 6 rows named "&b%{_rolefor}% Upgrades"
+    set {_validslots::*} to 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42 and 43
+    loop 54 times:
+        if {_validslots::*} contains loop-value -1:
+            set slot loop-value -1 of metadata tag "gui.roleupgrades" of {_p} to white stained glass pane named "&fComing Soon?"
+        else:
+            set slot loop-value -1 of metadata tag "gui.roleupgrades" of {_p} to grey stained glass pane named "&7"
+
+    set {_v} to {_validslots::1}
+    loop yaml nodes with keys "%{role::%{_p}'s uuid%}%" of "roleupgrades":
+        set {_req::*} to yaml list "%{role::%{_p}'s uuid%}%.%loop-value%.requirements" of "roleupgrades"
+
+        if {_req::*} does not contain "none":
+            if {roleupgrades::%{_p}'s uuid%::*} does not contain {_req::*}:
+                set slot {_v} of metadata tag "gui.roleupgrades" of {_p} to red stained glass pane named "&4Locked"
+                continue 
+        
+        while {_validslots::*} does not contain {_v}:
+            add 1 to {_v}
+            if {_v} is greater than 54:
+                stop loop
+        
+        set {_item} to yaml value "%{role::%{_p}'s uuid%}%.%loop-value%.item" of "roleupgrades" parsed as an itemtype 
+        set {_cost} to yaml value "%{role::%{_p}'s uuid%}%.%loop-value%.cost" of "roleupgrades"
+        set {_desc} to yaml value "%{role::%{_p}'s uuid%}%.%loop-value%.description" of "roleupgrades"
+
+        set {_id} to "%{role::%{_p}'s uuid%}%.%loop-value%"
+        set {_name} to formatstring(loop-value)
+
+        if {roleupgrades::%{_p}'s uuid%::*} contains {_id}:
+            set name of {_item} to "&a%{_name}%"
+            set lore of {_item} to "", "&7%{_desc}%", "" and "&aOwned"
+        else:
+            set name of {_item} to "&c%{_name}%"
+            set lore of {_item} to "", "&bCost: &d%{_cost}% Upgrade Point(s)", "", "&7%{_desc}%", "" and "&cUnowned"
+
+        set slot {_v} of metadata tag "gui.roleupgrades" of {_p} to guiid({_item}, {_id})
+        add 1 to {_v}
+
+    open metadata tag "gui.roleupgrades" of {_p} to {_p}
+
+
+
+
+on inventory click:
+    if player's current inventory is metadata tag "gui.roleupgrades" of player:
+        cancel event
+        if event-inventory is metadata tag "gui.roleupgrades" of player:
+            set {_id} to string tag "guiid" of nbt of event-slot 
+            set {_id::*} to {_id} split at "."
+            set {_cost} to yaml value "%{_id::1}%.%{_id::2}%.cost" of "roleupgrades"
+            if player has {_cost} of {item::upgradepoint}:
+                roleupgrades(player)
+                remove {_cost} of {item::upgradepoint} from player's inventory
+                add {_id} to {roleupgrades::%player's uuid%::*}
+                send "&aYou purchased the %uncoloured name of event-slot% role upgrade!" to player 
+                play sound "block.end_portal_frame.fill" at player for player 
+                roleupgrades(player)
+            else:
+                close player's inventory
+                play sound "block.note_block.didgeridoo" at player for player
+                send "&cYou can't afford that!" to player 
+
+            
+
+
+
+function guiid(i: itemtype, id: string) :: itemtype:
+    set string tag "guiid" of nbt of {_i} to {_id}
+    return {_i}
+            
+
+

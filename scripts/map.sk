@@ -1,0 +1,10 @@
+command /getmap <text>:
+    permission: op
+    trigger:
+        give player 1 of {map::%arg-1%}
+
+command /savemap <text>:
+    permission: op
+    trigger:
+        if player's tool is a filled map:
+            set {map::%arg-1%} to player's tool

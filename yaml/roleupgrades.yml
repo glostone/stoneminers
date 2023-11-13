@@ -1,0 +1,16 @@
+miner:
+  more_ores:
+    item: iron ore 
+    cost: 1
+    description: 'Higher chance of finding, Iron, Gold, Copper and Coal while mining.'
+    requirements:
+      - 'none'
+
+  smashing:
+    item: gravel
+    cost: 2
+    description: 'Higher chance of getting the next block.'
+    requirements:
+      - 'miner.more_ores'
+
+  

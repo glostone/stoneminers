@@ -1,0 +1,123 @@
+on right click on respawn anchor:
+    cancel event 
+    if string tag "custom;summoning" of nbt of event-block is not "true":
+        if block below event-block is redstone block:
+            block north of block below event-block is obsidian
+            block north east of block below event-block is obsidian
+            block north west of block below event-block is obsidian
+            block east of block below event-block is obsidian
+            block south east of block below event-block is obsidian
+            block south west of block below event-block is obsidian
+            block south of block below event-block is obsidian
+            block west of block below event-block is obsidian
+            if player's tool is not air:
+                if player's tool is not enchanted:
+                    if name of player's tool is not set:
+                        
+                        add 1 to charges of event-block
+                        play sound "entity.zombie_villager.cure" in block category with volume 0.3 at event-block for all players 
+                        set string tag "custom;slot%charges of event-block%" of nbt of event-block to "%type of player's tool%"
+                        remove 1 of player's tool from player's tool 
+                        if charges of event-block = 4:
+                            set string tag "custom;summoning" of nbt of event-block to "true"
+                            set {_slot::1} to (string tag "custom;slot1" of nbt of event-block) parsed as an itemtype
+                            set {_slot::2} to (string tag "custom;slot2" of nbt of event-block) parsed as an itemtype
+                            set {_slot::3} to (string tag "custom;slot3" of nbt of event-block) parsed as an itemtype
+                            set {_slot::4} to (string tag "custom;slot4" of nbt of event-block) parsed as an itemtype
+                            delete string tag "custom;slot1" of nbt of event-block
+                            delete string tag "custom;slot2" of nbt of event-block
+                            delete string tag "custom;slot3" of nbt of event-block
+                            delete string tag "custom;slot4" of nbt of event-block
+                            wait 1 second 
+
+                            if {_slot::*} contains rotten flesh and bone:
+                                if {_slot::*} contains emerald block and bread:
+                                    set {_summon} to "success"
+                                    spawn 1 of villager 0.5 meters above event-block
+                                    
+                                else if {_slot::*} contains mud and slime ball:
+                                    set {_summon} to "success"
+                                    spawn 1 of frog 0.5 meters above event-block 
+
+                                else if {_slot::*} contains wheat and leather:
+                                    set {_summon} to "success"
+                                    spawn 1 of cow 0.5 meters above event-block 
+
+                                else if {_slot::*} contains mud and carrot:
+                                    set {_summon} to "success"
+                                    spawn 1 of cow 0.5 meters above event-block 
+
+                                else if {_slot::*} contains wheat and wool:
+                                    set {_summon} to "success"
+                                    spawn 1 of sheep 0.5 meters above event-block 
+
+                                else if {_slot::*} contains wheat seeds and feather:
+                                    set {_summon} to "success"
+                                    spawn 1 of chicken 0.5 meters above event-block 
+
+                                else if {_slot::*} contains bamboo and jungle sapling:
+                                    set {_summon} to "success"
+                                    spawn 1 of panda 0.5 meters above event-block 
+                                
+                            if {_summon} is "success":
+                                make 50 of flame 1 meter above event-block with offset vector(0.25, 0.8, 0.25) with extra 0
+                                play sound "entity.item.pickup" in block category with volume 0.3 at event-block for all players
+
+                            else:
+                                loop {_slot::*}:
+                                    drop loop-value above event-block 
+
+                            set charges of event-block to 0
+                            delete string tag "custom;summoning" of nbt of event-block
+
+on left click on respawn anchor:
+    if string tag "custom;summoning" of nbt of event-block is not "true":
+        drop (string tag "custom;slot1" of nbt of event-block) parsed as an itemtype above event-block
+        drop (string tag "custom;slot2" of nbt of event-block) parsed as an itemtype above event-block
+        drop (string tag "custom;slot3" of nbt of event-block) parsed as an itemtype above event-block
+        drop (string tag "custom;slot4" of nbt of event-block) parsed as an itemtype above event-block
+        delete string tag "custom;slot1" of nbt of event-block
+        delete string tag "custom;slot2" of nbt of event-block
+        delete string tag "custom;slot3" of nbt of event-block
+        delete string tag "custom;slot4" of nbt of event-block
+        set charges of event-block to 0
+
+on break of respawn anchor:
+    cancel drops
+    drop 1 of {item::summoning_altar} at event-block
+    drop (string tag "custom;slot1" of nbt of event-block) parsed as an itemtype at event-block
+    drop (string tag "custom;slot2" of nbt of event-block) parsed as an itemtype at event-block
+    drop (string tag "custom;slot3" of nbt of event-block) parsed as an itemtype at event-block
+    drop (string tag "custom;slot4" of nbt of event-block) parsed as an itemtype at event-block
+
+
+on right click:
+    if name of player's tool contains "summoning tome":
+        cancel event
+        set {_id} to string tag "item;id" of nbt of player's tool
+        set {_id::*} to {_id} split at "_"
+        set player's tool to {item::%{_id}%}
+        summoningtome(player, "%{_id::1}%")
+
+
+
+function summoningtome(p: player, type: text):
+    set {_book} to a written book
+    set book title of {_book} to "Summoning Tome" 
+    if {_type} is "basics":
+        set {_page::1} to text component from "Index%nl%%nl%Page 1: Index%nl%Pages 2-3: Setup%nl%Page 4: Summoning"
+        
+        set {_page::2} to text component from "Setup%nl%%nl%Before you being summoning, You will need to either ""find"" or craft a summoning altar.%nl%%nl%Refer to your recipe book for crafting instructions."
+        set {_page::3} to text component from "Setup%nl%%nl%To power the altar place it on top of a 3x3 obsidian grid with a redstone block in the center."
+        set {_page::4} to text component from "Summoning%nl%%nl%Basic mobs will require one rotten flesh, one bone and two items relating to the mob.%nl%%nl%Refer to other volumes for item specifics."
+
+    else if {_type} is "passive":
+        set {_page::1} to text component from "Index%nl%%nl%Page 1: Index%nl%Page 2: Generic Mobs%nl%Page 3: Other Mobs"
+        set {_page::2} to text component from "Generic Mobs%nl%%nl%wheat + leather = cow%nl%wheat + wool = sheep%nl%%nl%wheat seeds + feather = chicken%nl%%nl%mud + carrot = pig%nl%"
+        set {_page::3} to text component from "Other Mobs%nl%%nl%mud + slimeball = frog%nl%%nl%bamboo + jungle sapling = panda"
+    
+    loop size of {_page::*} times:
+        set page loop-value of book {_book} to {_page::%loop-value%}
+    
+    set book author of {_book} to ""
+    open book {_book} to {_p}

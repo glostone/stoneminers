@@ -1,0 +1,28 @@
+command /cosmetics:
+    trigger:
+        set metadata tag "gui.cosmetics" of player to chest inventory with 3 rows named "&6Cosmetics"
+        loop 54 times:
+            set slot loop-value - 1 of metadata tag "gui.cosmetics" of player to grey stained glass pane named "&f"
+
+        set slot 10 of metadata tag "gui.cosmetics" of player to name tag named "&3Name Icons"
+
+        set slot 12 of metadata tag "gui.cosmetics" of player to white wool named "&bName Colours"
+
+        set slot 14 of metadata tag "gui.cosmetics" of player to white concrete named "&9Chat Colours"
+
+        open metadata tag "gui.cosmetics" of player to player
+
+on inventory click:
+    if player's current inventory is metadata tag "gui.cosmetics" of player:
+        cancel event
+        if name of event-slot is "&3Name Icons":
+            wait 1 tick
+            execute player command "nameicon"
+
+        if name of event-slot is "&bName Colours":
+            wait 1 tick
+            execute player command "namecolour"
+
+        if name of event-slot is "&9Chat Colours":
+            wait 1 tick
+            execute player command "chatcolour"
